@@ -1,0 +1,742 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── identity enums
+enum Plan {
+  FREE
+  PRO
+  AGENCY
+  ENTERPRISE
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  MEMBER
+  VIEWER
+}
+
+// ── USERS ──
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  passwordHash     String?
+  name             String
+  avatarUrl        String?
+  emailVerified    Boolean   @default(false)
+  emailVerifyToken String?   @unique
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean   @default(false)
+  isSuperAdmin     Boolean   @default(false)
+  isActive         Boolean   @default(true)
+  notificationPreferences Json?
+  lastLoginAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  memberships   Member[]
+  refreshTokens RefreshToken[]
+  oauthAccounts OAuthAccount[]
+
+  @@index([email])
+}
+
+// ── WORKSPACES ──
+model Workspace {
+  id              String    @id @default(cuid())
+  name            String
+  slug            String    @unique
+  plan            Plan      @default(FREE)
+  planExpiresAt   DateTime?
+  logoUrl         String?
+  brandColor      String    @default("#2563EB")
+  invoicePrefix   String    @default("INV")
+  invoiceNextNum  Int       @default(1)
+  defaultCurrency String    @default("USD")
+  defaultTaxRate  Decimal   @db.Decimal(5,2) @default(0)
+  taxNumber       String?
+  businessName    String?
+  businessEmail   String?
+  address         String?
+  timezone        String    @default("UTC")
+  paymentTerms    Int       @default(30)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  members      Member[]
+  clients      Client[]
+  projects     Project[]
+  invoices     Invoice[]
+  featureFlags WorkspaceFeatureFlag[]
+  auditLogs    AuditLog[]
+  snapshots    EntitySnapshot[]
+
+  @@index([slug])
+  @@index([plan])
+}
+
+// ── MEMBERS ──
+model Member {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  userId       String
+  role         Role      @default(MEMBER)
+  inviteToken  String?   @unique
+  inviteExpiry DateTime?
+  invitedBy    String?
+  joinedAt     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId])
+  @@index([inviteToken])
+}
+
+// ── REFRESH TOKENS ──
+model RefreshToken {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String    @unique
+  family     String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  replacedBy String?
+  userAgent  String?
+  ipAddress  String?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([family])
+}
+
+// ── OAUTH ACCOUNTS ──
+model OAuthAccount {
+  id          String   @id @default(cuid())
+  userId      String
+  provider    String
+  providerUid String
+  email       String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerUid])
+  @@index([userId])
+}
+
+// ── CLIENTS ──
+enum ClientHealth {
+  ACTIVE
+  AT_RISK
+  CHURNED
+}
+
+model Client {
+  id           String       @id @default(cuid())
+  workspaceId  String
+  name         String
+  company      String?
+  email        String?
+  phone        String?
+  timezone     String?
+  country      String?
+  address      String?
+  taxNumber    String?
+  currency     String?
+  tags         String[]
+  notes        String?
+  healthStatus ClientHealth @default(ACTIVE)
+  totalRevenue Decimal      @db.Decimal(14,2) @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
+  deletedBy    String?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  projects  Project[]
+  invoices  Invoice[]
+  proposals Proposal[]
+
+  @@index([workspaceId])
+  @@index([workspaceId, deletedAt])
+}
+
+// ── PROJECTS ──
+enum ProjectStatus {
+  LEAD
+  KICKOFF
+  IN_PROGRESS
+  REVIEW
+  REVISION
+  DELIVERED
+  CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  workspaceId    String
+  clientId       String
+  name           String
+  description    String?
+  status         ProjectStatus @default(LEAD)
+  currentStage   String?
+  customStages   Json?
+  startDate      DateTime?
+  deadline       DateTime?
+  currency       String        @default("USD")
+  tags           String[]
+  priority       Priority      @default(MEDIUM)
+  estimatedValue Decimal?      @db.Decimal(12,2)
+  shareToken     String        @unique
+  shareEnabled   Boolean       @default(true)
+  templateId     String?
+  createdBy      String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+  deletedBy      String?
+
+  workspace    Workspace             @relation(fields: [workspaceId], references: [id])
+  client       Client                @relation(fields: [clientId], references: [id])
+  stageHistory ProjectStageHistory[]
+  milestones   Milestone[]
+  tasks        Task[]
+  invoices     Invoice[]
+  files        File[]
+  comments     Comment[]
+  assignments  ProjectAssignment[]
+  expenses     Expense[]
+
+  @@index([workspaceId])
+  @@index([workspaceId, clientId])
+  @@index([shareToken])
+  @@index([workspaceId, deletedAt])
+  @@index([deadline, status])
+}
+
+model ProjectStageHistory {
+  id        String   @id @default(cuid())
+  projectId String
+  fromStage String?
+  toStage   String
+  note      String?
+  changedBy String
+  changedAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+}
+
+model ProjectAssignment {
+  projectId  String
+  memberId   String
+  role       String?
+  assignedAt DateTime @default(now())
+  assignedBy String
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@id([projectId, memberId])
+  @@index([memberId])
+}
+
+model ProjectTemplate {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  description String?
+  stages      Json
+  milestones  Json?
+  tasks       Json?
+  createdBy   String
+  createdAt   DateTime @default(now())
+
+  @@index([workspaceId])
+}
+
+// ── PROPOSALS ──
+enum ProposalStatus {
+  DRAFT
+  SENT
+  VIEWED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+model Proposal {
+  id                   String         @id @default(cuid())
+  workspaceId          String
+  clientId             String
+  title                String
+  introduction         String?
+  lineItems            Json
+  subtotal             Decimal        @db.Decimal(12,2)
+  taxTotal             Decimal        @db.Decimal(12,2)
+  discountAmount       Decimal        @db.Decimal(12,2) @default(0)
+  total                Decimal        @db.Decimal(12,2)
+  currency             String         @default("USD")
+  validUntil           DateTime?
+  status               ProposalStatus @default(DRAFT)
+  viewToken            String         @unique
+  sentAt               DateTime?
+  viewedAt             DateTime?
+  acceptedAt           DateTime?
+  rejectedAt           DateTime?
+  acceptedBy           String?
+  acceptedIp           String?
+  rejectionNote        String?
+  convertedToProjectId String?
+  version              Int            @default(1)
+  createdBy            String
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  deletedAt            DateTime?
+
+  client   Client            @relation(fields: [clientId], references: [id])
+  versions ProposalVersion[]
+
+  @@index([workspaceId])
+  @@index([viewToken])
+}
+
+model ProposalVersion {
+  id         String   @id @default(cuid())
+  proposalId String
+  version    Int
+  snapshot   Json
+  savedBy    String
+  savedAt    DateTime @default(now())
+
+  proposal Proposal @relation(fields: [proposalId], references: [id])
+
+  @@unique([proposalId, version])
+}
+
+// ── MILESTONES ──
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETE
+  APPROVED
+  REVISION_REQUESTED
+}
+
+model Milestone {
+  id           String          @id @default(cuid())
+  workspaceId  String
+  projectId    String
+  name         String
+  description  String?
+  dueDate      DateTime?
+  status       MilestoneStatus @default(PENDING)
+  invoiceId    String?
+  completedAt  DateTime?
+  approvedAt   DateTime?
+  approvedBy   String?
+  revisionNote String?
+  order        Int             @default(0)
+  createdBy    String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  deletedAt    DateTime?
+
+  project Project @relation(fields: [projectId], references: [id])
+  files   File[]
+
+  @@index([projectId])
+  @@index([workspaceId])
+}
+
+// ── TASKS ──
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  workspaceId String
+  projectId   String
+  parentId    String?
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  assigneeId  String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  order       Int        @default(0)
+  isInternal  Boolean    @default(true)
+  createdBy   String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+
+  project  Project       @relation(fields: [projectId], references: [id])
+  subtasks Task[]        @relation("subtasks")
+  parent   Task?         @relation("subtasks", fields: [parentId], references: [id])
+  comments TaskComment[]
+
+  @@index([projectId])
+  @@index([workspaceId, assigneeId])
+  @@index([dueDate, status])
+}
+
+model TaskComment {
+  id          String    @id @default(cuid())
+  taskId      String
+  workspaceId String
+  content     String
+  authorId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  task Task @relation(fields: [taskId], references: [id])
+
+  @@index([taskId])
+}
+
+// ── INVOICES ──
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  VIEWED
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  CANCELLED
+  REFUNDED
+}
+
+model Invoice {
+  id               String        @id @default(cuid())
+  workspaceId      String
+  clientId         String
+  projectId        String?
+  milestoneId      String?
+  invoiceNumber    String
+  status           InvoiceStatus @default(DRAFT)
+  currency         String        @default("USD")
+  lineItems        Json
+  subtotal         Decimal       @db.Decimal(14,2)
+  taxTotal         Decimal       @db.Decimal(14,2)
+  discountAmount   Decimal       @db.Decimal(14,2) @default(0)
+  discountType     String?
+  total            Decimal       @db.Decimal(14,2)
+  amountPaid       Decimal       @db.Decimal(14,2) @default(0)
+  amountDue        Decimal       @db.Decimal(14,2)
+  dueDate          DateTime?
+  paymentTerms     Int?
+  notes            String?
+  internalNote     String?
+  pdfUrl           String?
+  viewToken        String        @unique
+  sentAt           DateTime?
+  viewedAt         DateTime?
+  viewedCount      Int           @default(0)
+  paidAt           DateTime?
+  remindersSent    Int           @default(0)
+  lastReminderAt   DateTime?
+  remindersEnabled Boolean       @default(true)
+  isRecurring      Boolean       @default(false)
+  recurringRule    Json?
+  parentInvoiceId  String?
+  idempotencyKey   String?       @unique
+  createdBy        String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  deletedAt        DateTime?
+  deletedBy        String?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  client    Client    @relation(fields: [clientId], references: [id])
+  project   Project?  @relation(fields: [projectId], references: [id])
+  payments  Payment[]
+
+  @@unique([workspaceId, invoiceNumber])
+  @@index([workspaceId])
+  @@index([workspaceId, status])
+  @@index([viewToken])
+  @@index([dueDate, status])
+  @@index([clientId])
+}
+
+// ── PAYMENTS ──
+model Payment {
+  id          String   @id @default(cuid())
+  workspaceId String
+  invoiceId   String
+  amount      Decimal  @db.Decimal(14,2)
+  currency    String
+  method      String
+  reference   String?
+  note        String?
+  paidAt      DateTime
+  recordedBy  String
+  createdAt   DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@index([invoiceId])
+  @@index([workspaceId])
+}
+
+// ── EXPENSES ──
+model Expense {
+  id          String    @id @default(cuid())
+  workspaceId String
+  projectId   String?
+  description String
+  amount      Decimal   @db.Decimal(12,2)
+  currency    String
+  category    String
+  receiptUrl  String?
+  incurredAt  DateTime
+  isBillable  Boolean   @default(false)
+  invoicedAt  DateTime?
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@index([workspaceId])
+  @@index([projectId])
+}
+
+// ── FILES ──
+model File {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  projectId     String?
+  milestoneId   String?
+  name          String
+  key           String
+  url           String
+  mimeType      String
+  sizeBytes     Int
+  isDeliverable Boolean   @default(false)
+  version       Int       @default(1)
+  parentId      String?
+  uploadedBy    String
+  createdAt     DateTime  @default(now())
+  deletedAt     DateTime?
+  deletedBy     String?
+
+  project          Project?    @relation(fields: [projectId], references: [id])
+  milestone        Milestone?  @relation(fields: [milestoneId], references: [id])
+  newerVersion     File?       @relation("versions", fields: [parentId], references: [id])
+  previousVersions File[]      @relation("versions")
+
+  @@index([projectId])
+  @@index([milestoneId])
+  @@index([workspaceId])
+}
+
+// ── COMMENTS ──
+model Comment {
+  id          String    @id @default(cuid())
+  workspaceId String
+  projectId   String
+  parentId    String?
+  content     String
+  authorId    String?
+  authorName  String
+  authorType  String
+  isInternal  Boolean   @default(false)
+  attachments Json?
+  editedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  project Project   @relation(fields: [projectId], references: [id])
+  replies Comment[] @relation("replies")
+  parent  Comment?  @relation("replies", fields: [parentId], references: [id])
+
+  @@index([projectId])
+  @@index([workspaceId])
+}
+
+// ── NOTIFICATIONS ──
+enum NotificationType {
+  INVOICE_SENT
+  INVOICE_VIEWED
+  INVOICE_PAID
+  INVOICE_OVERDUE
+  PROJECT_STAGE_CHANGED
+  MILESTONE_APPROVED
+  MILESTONE_REVISION
+  PROPOSAL_ACCEPTED
+  PROPOSAL_REJECTED
+  NEW_COMMENT
+  NEW_FILE
+  MEMBER_INVITED
+  LIMIT_WARNING
+  PLAN_EXPIRING
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  workspaceId String
+  userId      String
+  type        NotificationType
+  title       String
+  body        String?
+  entityType  String?
+  entityId    String?
+  link        String?
+  isRead      Boolean          @default(false)
+  readAt      DateTime?
+  createdAt   DateTime         @default(now())
+
+  @@index([userId, isRead])
+  @@index([workspaceId])
+}
+
+// ── AUDIT LOGS ──
+enum AuditAction {
+  USER_LOGIN
+  USER_LOGOUT
+  USER_LOGIN_FAILED
+  USER_PASSWORD_RESET
+  USER_2FA_ENABLED
+  USER_2FA_DISABLED
+  USER_INVITED
+  USER_REMOVED
+  USER_IMPERSONATED
+  CREATED
+  UPDATED
+  DELETED
+  RESTORED
+  ARCHIVED
+  INVOICE_SENT
+  INVOICE_VIEWED
+  INVOICE_PAID
+  PROJECT_STAGE_CHANGED
+  PROPOSAL_ACCEPTED
+  PROPOSAL_REJECTED
+  MILESTONE_APPROVED
+  MILESTONE_REVISION_REQUESTED
+  FILE_UPLOADED
+  FILE_DELETED
+  DELIVERABLE_MARKED
+  PLAN_CHANGED
+  FEATURE_FLAG_TOGGLED
+  MEMBER_ROLE_CHANGED
+  WORKSPACE_SETTINGS_CHANGED
+  HARD_DELETE_EXECUTED
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  workspaceId String?
+  userId      String?
+  userEmail   String?
+  action      AuditAction
+  entityType  String
+  entityId    String
+  entityLabel String?
+  changes     Json?
+  meta        Json?
+  ipAddress   String?
+  requestId   String?
+  createdAt   DateTime    @default(now())
+
+  workspace Workspace? @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+  @@index([workspaceId, entityType, entityId])
+  @@index([workspaceId, createdAt])
+  @@index([userId])
+  @@index([action])
+}
+
+// ── ENTITY SNAPSHOTS (undo / redo) ──
+model EntitySnapshot {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  entityType   String
+  entityId     String
+  operation    String
+  previousData Json
+  expiresAt    DateTime
+  restoredAt   DateTime?
+  restoredBy   String?
+  createdBy    String
+  createdAt    DateTime  @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId, entityType, entityId])
+  @@index([expiresAt])
+}
+
+// ── FEATURE FLAGS ──
+model FeatureFlag {
+  key          String   @id
+  description  String
+  defaultPlans Plan[]
+  isEnabled    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  overrides WorkspaceFeatureFlag[]
+}
+
+model WorkspaceFeatureFlag {
+  workspaceId String
+  flagKey     String
+  enabled     Boolean
+  reason      String?
+  setBy       String
+  setAt       DateTime @default(now())
+
+  workspace Workspace   @relation(fields: [workspaceId], references: [id])
+  flag      FeatureFlag @relation(fields: [flagKey], references: [key])
+
+  @@id([workspaceId, flagKey])
+  @@index([workspaceId])
+}
+
+// ── IDEMPOTENCY RECORDS ──
+model IdempotencyRecord {
+  key         String   @id
+  workspaceId String
+  endpoint    String
+  statusCode  Int
+  response    Json
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+}
