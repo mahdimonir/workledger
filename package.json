@@ -1,0 +1,26 @@
+{
+  "name": "workledger",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev:api":  "pnpm --filter @workledger/api dev",
+    "dev:web":  "pnpm --filter @workledger/web dev",
+    "dev":      "pnpm --parallel --filter '@workledger/{api,web}' dev",
+    "build":    "pnpm --recursive run build",
+    "lint":     "pnpm --recursive run lint",
+    "test":     "pnpm --recursive run test"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt",
+      "msgpackr-extract",
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma"
+    ]
+  }
+}
