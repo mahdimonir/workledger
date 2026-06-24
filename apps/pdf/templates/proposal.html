@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Proposal: {{.Title}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-color: {{if .Workspace.BrandColor}}{{.Workspace.BrandColor}}{{else}}#6366f1{{end}};
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --text-light: #9ca3af;
+            --bg-light: #f9fafb;
+            --border-color: #e5e7eb;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: #ffffff;
+            line-height: 1.6;
+            padding: 40px;
+            font-size: 14px;
+        }
+        .proposal-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+        .logo-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--brand-color), #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .logo-img {
+            max-height: 50px;
+            max-width: 180px;
+            object-fit: contain;
+        }
+        .company-info h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+        .company-info p {
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .proposal-title {
+            text-align: right;
+        }
+        .proposal-title h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--brand-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .proposal-title p {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+            background-color: var(--bg-light);
+            padding: 24px;
+            border-radius: 8px;
+        }
+        .prepared-for h3, .proposal-meta h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .prepared-for p {
+            font-size: 13px;
+            line-height: 1.4;
+            color: var(--text-muted);
+        }
+        .prepared-for .client-name {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .meta-table td {
+            padding: 4px 0;
+            font-size: 13px;
+        }
+        .meta-table td.label {
+            color: var(--text-muted);
+        }
+        .meta-table td.value {
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .intro-section {
+            margin-bottom: 40px;
+        }
+        .intro-section h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        .intro-section p {
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+        .items-section h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+        .items-table th {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        .items-table .item-desc {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .items-table .text-right {
+            text-align: right;
+        }
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+        }
+        .totals-box {
+            width: 300px;
+        }
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .totals-table td {
+            padding: 6px 0;
+            font-size: 13px;
+        }
+        .totals-table td.label {
+            color: var(--text-muted);
+        }
+        .totals-table td.value {
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .totals-table tr.grand-total td {
+            border-top: 2px solid var(--border-color);
+            padding-top: 10px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .totals-table tr.grand-total td.value {
+            color: var(--brand-color);
+        }
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 11px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="proposal-container">
+        <div class="header">
+            <div class="company-info">
+                {{if .Workspace.LogoUrl}}
+                <img src="{{.Workspace.LogoUrl}}" class="logo-img" alt="Logo">
+                {{else}}
+                <div class="logo-placeholder">{{slice .Workspace.Name 0 1}}</div>
+                {{end}}
+                <h2>{{.Workspace.Name}}</h2>
+                {{if .Workspace.Address}}<p>{{.Workspace.Address}}</p>{{end}}
+                {{if .Workspace.Email}}<p>Email: {{.Workspace.Email}}</p>{{end}}
+            </div>
+            <div class="proposal-title">
+                <h1>Proposal</h1>
+                <p>{{.Title}}</p>
+            </div>
+        </div>
+
+        <div class="details-grid">
+            <div class="prepared-for">
+                <h3>Prepared For</h3>
+                <p class="client-name">{{.Client.Name}}</p>
+                {{if .Client.Company}}<p class="client-company">{{.Client.Company}}</p>{{end}}
+                {{if .Client.Address}}<p>{{.Client.Address}}</p>{{end}}
+                {{if .Client.Email}}<p>{{.Client.Email}}</p>{{end}}
+            </div>
+            <div class="proposal-meta">
+                <h3>Proposal Info</h3>
+                <table class="meta-table">
+                    <tr>
+                        <td class="label">Valid Until:</td>
+                        <td class="value">{{.ValidUntil}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Status:</td>
+                        <td class="value" style="color: var(--brand-color)">Pending</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        {{if .Intro}}
+        <div class="intro-section">
+            <h2>Introduction & Scope</h2>
+            <p>{{.Intro}}</p>
+        </div>
+        {{end}}
+
+        <div class="items-section">
+            <h2>Estimated Budget & Pricing</h2>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th class="text-right" style="width: 80px;">Qty</th>
+                        <th class="text-right" style="width: 120px;">Rate</th>
+                        <th class="text-right" style="width: 80px;">Tax</th>
+                        <th class="text-right" style="width: 120px;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .LineItems}}
+                    <tr>
+                        <td>
+                            <div class="item-desc">{{.Description}}</div>
+                        </td>
+                        <td class="text-right">{{printf "%.0f" .Quantity}}</td>
+                        <td class="text-right">{{$.Currency}} {{printf "%.2f" .Rate}}</td>
+                        <td class="text-right">{{if gt .TaxRate 0.0}}{{printf "%.0f" .TaxRate}}%{{else}}-{{end}}</td>
+                        <td class="text-right">{{$.Currency}} {{printf "%.2f" .Amount}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+
+            <div class="totals-section">
+                <div class="totals-box">
+                    <table class="totals-table">
+                        <tr>
+                            <td class="label">Subtotal</td>
+                            <td class="value">{{.Currency}} {{printf "%.2f" .Subtotal}}</td>
+                        </tr>
+                        {{if gt .TaxTotal 0.0}}
+                        <tr>
+                            <td class="label">Tax</td>
+                            <td class="value">{{.Currency}} {{printf "%.2f" .TaxTotal}}</td>
+                        </tr>
+                        {{end}}
+                        <tr class="grand-total">
+                            <td class="label">Total Estimate</td>
+                            <td class="value">{{.Currency}} {{printf "%.2f" .Total}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>This proposal is valid until the date specified above.</p>
+            <p>Generated by WorkLedger.</p>
+        </div>
+    </div>
+</body>
+</html>

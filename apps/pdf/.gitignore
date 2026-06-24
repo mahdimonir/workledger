@@ -1,0 +1,13 @@
+# Compiled binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go build cache
+/tmp/
+
+# Local uploads / generated files
+uploads/
+generated/

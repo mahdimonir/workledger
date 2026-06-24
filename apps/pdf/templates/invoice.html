@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice {{.InvoiceNumber}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-color: {{if .Workspace.BrandColor}}{{.Workspace.BrandColor}}{{else}}#6366f1{{end}};
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --text-light: #9ca3af;
+            --bg-light: #f9fafb;
+            --border-color: #e5e7eb;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: #ffffff;
+            line-height: 1.5;
+            padding: 40px;
+            font-size: 14px;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+        .logo-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--brand-color), #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .logo-img {
+            max-height: 50px;
+            max-width: 180px;
+            object-fit: contain;
+        }
+        .company-info h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+        .company-info p {
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .invoice-title {
+            text-align: right;
+        }
+        .invoice-title h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--brand-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .invoice-title p {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .bill-to h3, .invoice-meta h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        .bill-to p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-muted);
+        }
+        .bill-to .client-name {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .meta-table td {
+            padding: 6px 0;
+            font-size: 13px;
+        }
+        .meta-table td.label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .meta-table td.value {
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .items-table th {
+            background-color: var(--bg-light);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .items-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        .items-table .item-desc {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .items-table .text-right {
+            text-align: right;
+        }
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+        }
+        .totals-box {
+            width: 320px;
+        }
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .totals-table td {
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        .totals-table td.label {
+            color: var(--text-muted);
+        }
+        .totals-table td.value {
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .totals-table tr.grand-total td {
+            border-top: 2px solid var(--border-color);
+            padding-top: 12px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .totals-table tr.grand-total td.value {
+            color: var(--brand-color);
+        }
+        .totals-table tr.amount-due td {
+            background-color: var(--bg-light);
+            padding: 8px 12px;
+            font-weight: 700;
+            border-radius: 6px;
+        }
+        .totals-table tr.amount-due td.label {
+            color: var(--text-main);
+        }
+        .totals-table tr.amount-due td.value {
+            color: #b91c1c;
+        }
+        .notes-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            margin-top: 40px;
+        }
+        .notes-section h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+        .notes-section p {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 11px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="header">
+            <div class="company-info">
+                {{if .Workspace.LogoUrl}}
+                <img src="{{.Workspace.LogoUrl}}" class="logo-img" alt="Logo">
+                {{else}}
+                <div class="logo-placeholder">{{slice .Workspace.Name 0 1}}</div>
+                {{end}}
+                <h2>{{.Workspace.Name}}</h2>
+                {{if .Workspace.Address}}<p>{{.Workspace.Address}}</p>{{end}}
+                {{if .Workspace.Email}}<p>Email: {{.Workspace.Email}}</p>{{end}}
+                {{if .Workspace.TaxNumber}}<p>Tax: {{.Workspace.TaxNumber}}</p>{{end}}
+            </div>
+            <div class="invoice-title">
+                <h1>Invoice</h1>
+                <p># {{.InvoiceNumber}}</p>
+            </div>
+        </div>
+
+        <div class="details-grid">
+            <div class="bill-to">
+                <h3>Billed To</h3>
+                <p class="client-name">{{.Client.Name}}</p>
+                {{if .Client.Company}}<p class="client-company">{{.Client.Company}}</p>{{end}}
+                {{if .Client.Address}}<p>{{.Client.Address}}</p>{{end}}
+                {{if .Client.Email}}<p>{{.Client.Email}}</p>{{end}}
+            </div>
+            <div class="invoice-meta">
+                <h3>Invoice Details</h3>
+                <table class="meta-table">
+                    <tr>
+                        <td class="label">Invoice Date:</td>
+                        <td class="value">{{.IssuedDate}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Due Date:</td>
+                        <td class="value">{{.DueDate}}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Status:</td>
+                        <td class="value" style="color: var(--brand-color)">Unpaid</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th class="text-right" style="width: 80px;">Qty</th>
+                    <th class="text-right" style="width: 120px;">Rate</th>
+                    <th class="text-right" style="width: 80px;">Tax</th>
+                    <th class="text-right" style="width: 120px;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .LineItems}}
+                <tr>
+                    <td>
+                        <div class="item-desc">{{.Description}}</div>
+                    </td>
+                    <td class="text-right">{{printf "%.0f" .Quantity}}</td>
+                    <td class="text-right">{{$.Currency}} {{printf "%.2f" .Rate}}</td>
+                    <td class="text-right">{{if gt .TaxRate 0.0}}{{printf "%.0f" .TaxRate}}%{{else}}-{{end}}</td>
+                    <td class="text-right">{{$.Currency}} {{printf "%.2f" .Amount}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+
+        <div class="totals-section">
+            <div class="totals-box">
+                <table class="totals-table">
+                    <tr>
+                        <td class="label">Subtotal</td>
+                        <td class="value">{{.Currency}} {{printf "%.2f" .Subtotal}}</td>
+                    </tr>
+                    {{if gt .TaxTotal 0.0}}
+                    <tr>
+                        <td class="label">Tax</td>
+                        <td class="value">{{.Currency}} {{printf "%.2f" .TaxTotal}}</td>
+                    </tr>
+                    {{end}}
+                    <tr class="grand-total">
+                        <td class="label">Total</td>
+                        <td class="value">{{.Currency}} {{printf "%.2f" .Total}}</td>
+                    </tr>
+                    {{if gt .AmountDue 0.0}}
+                    <tr class="amount-due" style="margin-top: 10px;">
+                        <td class="label">Amount Due</td>
+                        <td class="value">{{.Currency}} {{printf "%.2f" .AmountDue}}</td>
+                    </tr>
+                    {{end}}
+                </table>
+            </div>
+        </div>
+
+        {{if .Notes}}
+        <div class="notes-section">
+            <h4>Notes</h4>
+            <p>{{.Notes}}</p>
+        </div>
+        {{end}}
+
+        <div class="footer">
+            <p>Thank you for your business!</p>
+            <p>Generated by WorkLedger.</p>
+        </div>
+    </div>
+</body>
+</html>
