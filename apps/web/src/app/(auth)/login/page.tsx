@@ -19,11 +19,9 @@ export default function LoginPage() {
     setError('');
     
     try {
-      // 1. Authenticate user
       const loginRes = await apiClient.post('/auth/login', { email, password });
       const { accessToken } = loginRes.data;
 
-      // 2. Fetch profile and workspace information
       const meRes = await apiClient.get('/auth/me', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -31,10 +29,8 @@ export default function LoginPage() {
       });
       const { user, workspace, role } = meRes.data;
 
-      // 3. Save to Zustand store
       useAuthStore.getState().setSession(accessToken, { user, workspace, role });
 
-      // 4. Redirect to dashboard
       window.location.href = '/dashboard';
     } catch (err: any) {
       console.error(err);

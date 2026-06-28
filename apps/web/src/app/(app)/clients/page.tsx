@@ -1,21 +1,19 @@
 'use client';
 
-import { apiClient } from '@/shared/api/client';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Eye, Plus, Search, Trash2, Users, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Search, Plus, Eye, Trash2, X } from 'lucide-react';
+import { apiClient } from '@/shared/api/client';
 
 export default function ClientsPage() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterHealth, setFilterHealth] = useState('ALL');
   
-  // Modal states
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
 
-  // Form states
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [email, setEmail] = useState('');
@@ -23,7 +21,6 @@ export default function ClientsPage() {
   const [healthStatus, setHealthStatus] = useState('ACTIVE');
   const [formError, setFormError] = useState('');
 
-  // Fetch clients
   const { data: clientsRes, isLoading } = useQuery({
     queryKey: ['clients'],
     queryFn: () => apiClient.get('/clients').then(res => res.data),
@@ -31,7 +28,6 @@ export default function ClientsPage() {
 
   const clients = clientsRes?.data || [];
 
-  // Create Client Mutation
   const createMutation = useMutation({
     mutationFn: (newClient: any) => apiClient.post('/clients', newClient),
     onSuccess: () => {
@@ -44,7 +40,6 @@ export default function ClientsPage() {
     }
   });
 
-  // Update Client Mutation
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string, data: any }) => apiClient.patch(`/clients/${id}`, data),
     onSuccess: () => {
@@ -58,7 +53,6 @@ export default function ClientsPage() {
     }
   });
 
-  // Delete Client Mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiClient.delete(`/clients/${id}`),
     onSuccess: () => {
@@ -107,7 +101,6 @@ export default function ClientsPage() {
     }
   };
 
-  // Filter clients
   const filteredClients = clients.filter((client: any) => {
     const matchesSearch = 
       client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -134,7 +127,6 @@ export default function ClientsPage() {
 
   return (
     <div className="flex flex-col gap-8 text-black">
-      {/* Header action */}
       <div className="flex justify-between items-center flex-wrap gap-4 text-left">
         <div>
           <h1 className="text-3xl font-black uppercase tracking-tighter">Clients CRM</h1>
@@ -148,7 +140,6 @@ export default function ClientsPage() {
         </button>
       </div>
 
-      {/* Search & filter bars */}
       <div className="flex flex-col sm:flex-row gap-4 items-center">
         <div className="flex-1 w-full relative">
           <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
@@ -177,10 +168,9 @@ export default function ClientsPage() {
         </div>
       </div>
 
-      {/* CRM list table */}
       {filteredClients.length === 0 ? (
         <div className="border border-black/5 rounded-2xl bg-white/60 backdrop-blur-md p-16 flex flex-col items-center justify-center text-center shadow-sm">
-          <Users className="w-12 h-12 text-zinc-350 mb-4" />
+          <Plus className="w-12 h-12 text-zinc-350 mb-4" />
           <h3 className="font-black text-lg uppercase tracking-tight text-black mb-2">No Clients Found</h3>
           <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider max-w-sm mb-6">Create a client profile to start logging project pipelines and issuing sequental invoices.</p>
           <button 
@@ -247,7 +237,6 @@ export default function ClientsPage() {
         </div>
       )}
 
-      {/* Add Client Slide-over / Modal */}
       {isAddOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-[#efeae3] rounded-3xl border border-black/5 p-8 flex flex-col gap-6 relative shadow-2xl">
@@ -328,7 +317,6 @@ export default function ClientsPage() {
         </div>
       )}
 
-      {/* Edit Client Modal */}
       {isEditOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-[#efeae3] rounded-3xl border border-black/5 p-8 flex flex-col gap-6 relative shadow-2xl">

@@ -24,7 +24,7 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-zinc-900 text-zinc-100 flex">
-      {/* Admin Sidebar */}
+      {}
       <aside className="w-64 border-r border-zinc-800 bg-zinc-950 p-4 flex flex-col justify-between">
         <div className="flex flex-col gap-8">
           <div>
@@ -61,7 +61,7 @@ export default function AdminLayout({
         </Link>
       </aside>
 
-      {/* Content wrapper */}
+      {}
       <main className="flex-1 p-8 md:p-10 overflow-y-auto">{children}</main>
     </div>
   );
