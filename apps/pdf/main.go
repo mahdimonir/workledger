@@ -13,18 +13,15 @@ import (
 )
 
 func main() {
-	// Load environment variables from .env files
-	_ = godotenv.Load("../api/.env")    // relative to apps/pdf
-	_ = godotenv.Load("apps/api/.env")  // relative to workspace root
-	_ = godotenv.Load()                 // local directory
+	_ = godotenv.Load("../api/.env")
+	_ = godotenv.Load("apps/api/.env")
+	_ = godotenv.Load()
 
 	e := echo.New()
 
-	// Middleware
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.Recover())
 
-	// Health checks and status
 	e.GET("/health", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	})
@@ -35,7 +32,6 @@ func main() {
 		return c.NoContent(http.StatusOK)
 	})
 
-	// PDF Routes (protected by AuthMiddleware)
 	pdfGroup := e.Group("/pdf")
 	pdfGroup.Use(middleware.AuthMiddleware)
 	pdfGroup.POST("/invoice", handlers.GenerateInvoicePDF)
