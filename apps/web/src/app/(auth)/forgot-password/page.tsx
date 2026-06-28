@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { apiClient } from '@/shared/api/client';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -14,10 +15,18 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     setError('');
 
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await apiClient.post('/auth/password/reset-request', { email });
       setSuccess(true);
-    }, 1000);
+      setLoading(false);
+    } catch (err: any) {
+      console.error(err);
+      setError(
+        err.response?.data?.message || 
+        'Could not process password recovery request. Please try again.'
+      );
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,7 +45,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         {error && (
-          <div className="p-3 text-sm rounded-xl bg-red-500/10 border border-red-500/20 text-red-700 text-center">
+          <div className="p-3 text-sm rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 text-center font-medium">
             {error}
           </div>
         )}
