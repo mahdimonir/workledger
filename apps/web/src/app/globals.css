@@ -537,7 +537,7 @@ html.lenis, html.lenis body {
 @media (max-width: 768px) {
   #loader h1 { font-size: 8vw; }
 
-  /* ── PAGE 1: HERO ── */
+  
   #page1 { padding: 0 5vw; }
 
   #center {
@@ -569,7 +569,7 @@ html.lenis, html.lenis body {
     right: -20vw;
   }
 
-  /* ── PAGE 2: MARQUEE + ABOUT ── */
+  
   #page2 { padding: 12vw 0; }
 
   #moving-text h1 { font-size: 15vw; }
@@ -595,7 +595,7 @@ html.lenis, html.lenis body {
 
   #bottom-part2 { width: 100%; }
 
-  /* ── PAGE 3: CAPABILITIES ── */
+  
   #page3 { padding: 12vw 5vw; }
 
   #page3 .capabilities-header {
@@ -620,13 +620,13 @@ html.lenis, html.lenis body {
   .elem-right p:first-child { font-size: 3.5vw; }
   .elem-right p:last-child  { font-size: 3vw; }
 
-  /* Always hide the fixed hover image on touch devices */
+  
   #fixedImage { display: none !important; }
 
-  /* ── PAGE 4: CASE BRIEFS ── */
+  
   #page4 { padding: 10vw 5vw; }
 
-  /* ── FOOTER ── */
+  
   #footer { padding: 5vw 5vw; }
 
   #footer h1 {

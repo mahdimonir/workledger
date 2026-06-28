@@ -32,7 +32,7 @@ export default function ClientPortalPage() {
 
   return (
     <div className="min-h-screen bg-[#080711] text-zinc-100 selection:bg-purple-600 selection:text-white pb-16 text-left">
-      {/* Top Banner */}
+      {}
       <header className="border-b border-white/5 bg-[#080711]/60 backdrop-blur-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="font-bold text-lg bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
@@ -45,13 +45,13 @@ export default function ClientPortalPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 mt-10 flex flex-col gap-10">
-        {/* Welcome Section */}
+        {}
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Project: E-Commerce Rebuild</h1>
           <p className="text-zinc-500 text-sm mt-1">Share Token ID: {shareToken}</p>
         </div>
 
-        {/* Milestone Tracker Cards */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-xl border border-white/5 bg-white/[0.02] backdrop-blur-md flex flex-col gap-4">
             <div className="flex justify-between items-start">
@@ -84,7 +84,7 @@ export default function ClientPortalPage() {
           </div>
         </div>
 
-        {/* Discussions and Files */}
+        {}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 p-6 rounded-xl border border-white/5 bg-white/[0.01] flex flex-col gap-6">
             <h3 className="font-bold text-lg text-white flex items-center gap-2">

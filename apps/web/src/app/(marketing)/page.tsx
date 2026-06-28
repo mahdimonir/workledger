@@ -410,7 +410,7 @@ export default function PremiumLandingPage() {
       <section id="page4" className="relative z-10 text-left border-b border-black/10">
         <div className="relative z-10">
           <span className="text-zinc-500 text-xs font-black uppercase tracking-widest block mb-2">
-            // Case Briefs
+            
           </span>
           <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter mb-8 md:mb-12">
             Proven Operations Optimization

@@ -5,13 +5,13 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1
 
 export const apiClient = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // Crucial for HTTP-only cookies (refresh token)
+  withCredentials: true, 
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor to attach access token dynamically
+
 apiClient.interceptors.request.use(
   (config) => {
     const accessToken = useAuthStore.getState().accessToken;
@@ -37,16 +37,16 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-// Response interceptor for automatic Silent Refresh Token Rotation (RTR)
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Check if error is 401 and request has not retried yet
+    
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (originalRequest.url === '/auth/refresh' || originalRequest.url === '/auth/login') {
-        // If login or refresh request itself fails, reject immediately
+        
         return Promise.reject(error);
       }
 
@@ -65,7 +65,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Trigger silent refresh
+        
         const refreshResponse = await apiClient.post('/auth/refresh');
         const newAccessToken = refreshResponse.data?.data?.accessToken;
 
@@ -73,18 +73,18 @@ apiClient.interceptors.response.use(
           throw new Error('Refresh token rotation failed: No access token returned');
         }
 
-        // Save new access token
+        
         useAuthStore.getState().setSession(newAccessToken);
 
-        // Process queue
+        
         processQueue(null, newAccessToken);
 
-        // Retry original request
+        
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        // Clear session on failure and redirect
+        
         useAuthStore.getState().clearSession();
         if (typeof window !== 'undefined') {
           window.location.href = '/login';

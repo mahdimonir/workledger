@@ -85,7 +85,6 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8 text-black">
-      {/* Welcome Banner */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-black uppercase tracking-tighter">Business Health</h1>
@@ -97,7 +96,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Grid of stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
@@ -118,10 +116,8 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Middle Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Column 1 — Project Pipeline (Left/Wide) */}
         <div className="lg:col-span-2 p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md flex flex-col gap-6 shadow-sm">
           <div className="flex justify-between items-center">
             <h3 className="font-black text-xs uppercase tracking-widest">Urgent Project Pipeline</h3>
@@ -159,7 +155,6 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Column 3 — Quick Actions (Right/Narrow) */}
         <div className="p-6 rounded-2xl border border-black/5 bg-[#f5f2ee] flex flex-col gap-6 shadow-sm justify-between">
           <div>
             <h3 className="font-black text-xs uppercase tracking-widest mb-4">Quick Actions</h3>
@@ -183,7 +178,6 @@ export default function DashboardPage() {
 
       </div>
 
-      {/* Row 3 — Recent Invoices */}
       <div className="p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md flex flex-col gap-6 shadow-sm text-left">
         <div className="flex justify-between items-center">
           <h3 className="font-black text-xs uppercase tracking-widest">Recent Invoice Ledger</h3>
