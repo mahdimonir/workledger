@@ -24,9 +24,15 @@ func main() {
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.Recover())
 
-	// Health check
+	// Health checks and status
 	e.GET("/health", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	})
+	e.GET("/", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{"status": "WorkLedger PDF Service Active"})
+	})
+	e.HEAD("/", func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
 	})
 
 	// PDF Routes (protected by AuthMiddleware)
