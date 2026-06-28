@@ -1,46 +1,39 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Eye, Share2, X, RefreshCw, AlertTriangle, Calendar, FileText, Send, History } from 'lucide-react';
 import { apiClient } from '@/shared/api/client';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { FileText, History, Plus, Send, Share2, X } from 'lucide-react';
+import React, { useState } from 'react';
 
 export default function ProposalsPage() {
   const queryClient = useQueryClient();
   const [filterStatus, setFilterStatus] = useState('ALL');
   
-  // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isVersionsOpen, setIsVersionsOpen] = useState(false);
   const [selectedProposal, setSelectedProposal] = useState<any>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Proposal form states
   const [title, setTitle] = useState('');
   const [clientId, setClientId] = useState('');
   const [validUntil, setValidUntil] = useState('');
   const [introduction, setIntroduction] = useState('');
   const [discountAmount, setDiscountAmount] = useState('0');
   
-  // Line items: { description, quantity, rate }
   const [lineItems, setLineItems] = useState<any[]>([
     { description: '', quantity: 1, rate: 0 }
   ]);
   const [formError, setFormError] = useState('');
 
-  // Fetch proposals
   const { data: proposalsRes, isLoading: loadingProposals } = useQuery({
     queryKey: ['proposals'],
     queryFn: () => apiClient.get('/proposals').then(res => res.data),
   });
 
-  // Fetch clients
   const { data: clientsRes, isLoading: loadingClients } = useQuery({
     queryKey: ['clients'],
     queryFn: () => apiClient.get('/clients').then(res => res.data),
   });
-
-  // Fetch versions of selected proposal
   const { data: versionsRes, isLoading: loadingVersions } = useQuery({
     queryKey: ['proposal-versions', selectedProposal?.id],
     queryFn: () => apiClient.get(`/proposals/${selectedProposal.id}/versions`).then(res => res.data),
@@ -52,7 +45,6 @@ export default function ProposalsPage() {
   const versions = versionsRes?.data || [];
   const isLoading = loadingProposals || loadingClients;
 
-  // Create Proposal Mutation
   const createMutation = useMutation({
     mutationFn: (newProposal: any) => apiClient.post('/proposals', newProposal),
     onSuccess: () => {
@@ -65,7 +57,6 @@ export default function ProposalsPage() {
     }
   });
 
-  // Update Status to SENT Mutation
   const sendMutation = useMutation({
     mutationFn: (id: string) => apiClient.patch(`/proposals/${id}`, { status: 'SENT' }),
     onSuccess: () => {
@@ -73,7 +64,6 @@ export default function ProposalsPage() {
     }
   });
 
-  // Restore Version Mutation
   const restoreVersionMutation = useMutation({
     mutationFn: ({ id, version }: { id: string, version: number }) => 
       apiClient.post(`/proposals/${id}/versions/${version}/restore`),
@@ -119,7 +109,6 @@ export default function ProposalsPage() {
     setLineItems(updated);
   };
 
-  // Calculations
   const subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
   const discountNum = parseFloat(discountAmount) || 0;
   const total = Math.max(0, subtotal - discountNum);
@@ -169,7 +158,6 @@ export default function ProposalsPage() {
     }
   };
 
-  // Filter proposals
   const filteredProposals = proposals.filter((p: any) => {
     if (filterStatus === 'ALL') return true;
     return p.status === filterStatus;
@@ -190,7 +178,6 @@ export default function ProposalsPage() {
 
   return (
     <div className="flex flex-col gap-8 text-black">
-      {/* Header action */}
       <div className="flex justify-between items-center flex-wrap gap-4 text-left">
         <div>
           <h1 className="text-3xl font-black uppercase tracking-tighter">Proposals & Contracts</h1>
@@ -204,7 +191,6 @@ export default function ProposalsPage() {
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="flex border-b border-black/10 gap-6 overflow-x-auto scrollbar-none">
         {[
           { name: 'All proposals', value: 'ALL' },
@@ -228,7 +214,6 @@ export default function ProposalsPage() {
         ))}
       </div>
 
-      {/* Proposals table list */}
       {filteredProposals.length === 0 ? (
         <div className="border border-black/5 rounded-2xl bg-white/60 backdrop-blur-md p-16 flex flex-col items-center justify-center text-center shadow-sm">
           <FileText className="w-12 h-12 text-zinc-350 mb-4" />
@@ -318,7 +303,6 @@ export default function ProposalsPage() {
         </div>
       )}
 
-      {/* Create Proposal Modal */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-2xl bg-[#efeae3] rounded-3xl border border-black/5 p-8 flex flex-col gap-6 relative shadow-2xl overflow-y-auto max-h-[90vh]">
@@ -392,7 +376,6 @@ export default function ProposalsPage() {
                 />
               </div>
 
-              {/* Line Items */}
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center">
                   <h4 className="text-xs font-black uppercase tracking-widest text-zinc-650">Pricing & Deliverables</h4>
@@ -440,7 +423,6 @@ export default function ProposalsPage() {
                 </div>
               </div>
 
-              {/* Proposals Calculations Summary */}
               <div className="p-4 rounded-xl border border-black/5 bg-white/40 flex flex-col gap-2 font-bold text-xs text-zinc-550 text-right max-w-xs ml-auto w-full">
                 <div>Subtotal: <span className="text-black">${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>
                 {discountNum > 0 && <div>Discount: <span className="text-rose-600">-${discountNum.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span></div>}
@@ -458,7 +440,6 @@ export default function ProposalsPage() {
         </div>
       )}
 
-      {/* Version History Modal */}
       {isVersionsOpen && selectedProposal && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-[#efeae3] rounded-3xl border border-black/5 p-8 flex flex-col gap-6 relative shadow-2xl max-h-[80vh] overflow-y-auto">

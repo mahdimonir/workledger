@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Eye, Share2, X, RefreshCw, AlertTriangle, Calendar, DollarSign } from 'lucide-react';
 import { apiClient } from '@/shared/api/client';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Calendar, DollarSign, FolderKanban, Plus, RefreshCw, Share2, X } from 'lucide-react';
+import React, { useState } from 'react';
 
 export default function ProjectsPage() {
   const queryClient = useQueryClient();

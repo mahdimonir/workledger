@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Plus, SlidersHorizontal, Eye, Trash2, X, AlertTriangle } from 'lucide-react';
 import { apiClient } from '@/shared/api/client';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Eye, Plus, Search, Trash2, Users, X } from 'lucide-react';
+import React, { useState } from 'react';
 
 export default function ClientsPage() {
   const queryClient = useQueryClient();
