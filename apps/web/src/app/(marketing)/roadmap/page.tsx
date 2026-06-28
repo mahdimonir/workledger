@@ -128,7 +128,7 @@ export default function RoadmapPage() {
 
         <div className="text-center max-w-3xl mx-auto mb-24">
           <span className="roadmap-label text-zinc-500 text-xs font-black uppercase tracking-widest block mb-4">
-            // Timeline
+            
           </span>
           <h1 className="roadmap-title text-5xl md:text-[7vw] font-black uppercase tracking-tighter mb-6 leading-none">
             Product Development Roadmap

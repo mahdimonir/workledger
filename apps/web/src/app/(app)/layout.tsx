@@ -1,22 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  Users, 
-  FolderKanban, 
-  Receipt, 
-  FileText,
-  Settings, 
-  LogOut, 
-  Menu, 
-  X,
-  Bell
-} from 'lucide-react';
 import { apiClient } from '@/shared/api/client';
 import { useAuthStore } from '@/shared/store/auth.store';
+import {
+  Bell,
+  FileText,
+  FolderKanban,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Receipt,
+  Settings,
+  Users,
+  X
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 export default function AppLayout({
   children,
@@ -35,7 +35,6 @@ export default function AppLayout({
         return;
       }
       
-      // If we have no local token, redirect to login
       const token = useAuthStore.getState().accessToken;
       if (!token) {
         window.location.href = '/login';
@@ -88,12 +87,10 @@ export default function AppLayout({
     );
   }
 
-  // Get user initial for avatar
   const userInitial = user?.name ? user.name.charAt(0) : 'W';
 
   return (
     <div className="min-h-screen bg-[#efeae3] flex text-zinc-900 font-sans antialiased">
-      {/* Sidebar for Desktop */}
       <aside className={`fixed top-0 bottom-0 left-0 z-40 w-64 border-r border-black/10 bg-[#f5f2ee] transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:w-64`}>
         <div className="h-full flex flex-col justify-between p-6">
           <div className="flex flex-col gap-8">
@@ -144,9 +141,7 @@ export default function AppLayout({
         </div>
       </aside>
 
-      {/* Main content wrapper */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header */}
         <header className="h-16 border-b border-black/10 bg-[#f5f2ee] px-6 flex items-center justify-between">
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 -ml-2 rounded hover:bg-black/5 md:hidden">
             <Menu className="w-5 h-5" />
@@ -177,7 +172,6 @@ export default function AppLayout({
           </div>
         </header>
 
-        {/* Content body */}
         <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-[#efeae3]">{children}</main>
       </div>
     </div>

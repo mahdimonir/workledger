@@ -18,7 +18,7 @@ export default function AdminMetricsPage() {
         <p className="text-zinc-500 text-sm mt-1">Platform analytics, subscription revenues, and growth statistics.</p>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {metrics.map((metric, idx) => {
           const Icon = metric.icon;

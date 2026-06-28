@@ -1,19 +1,17 @@
 'use client';
 
-import { apiClient } from '@/shared/api/client';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, DollarSign, FolderKanban, Plus, RefreshCw, Share2, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, Share2, X, RefreshCw, Calendar, DollarSign } from 'lucide-react';
+import { apiClient } from '@/shared/api/client';
 
 export default function ProjectsPage() {
   const queryClient = useQueryClient();
   const [filterStatus, setFilterStatus] = useState('ALL');
   
-  // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Form states
   const [name, setName] = useState('');
   const [clientId, setClientId] = useState('');
   const [budget, setBudget] = useState('');
@@ -22,13 +20,11 @@ export default function ProjectsPage() {
   const [status, setStatus] = useState('KICKOFF');
   const [formError, setFormError] = useState('');
 
-  // Fetch projects
   const { data: projectsRes, isLoading: loadingProjects } = useQuery({
     queryKey: ['projects'],
     queryFn: () => apiClient.get('/projects').then(res => res.data),
   });
 
-  // Fetch clients (for client selection dropdown)
   const { data: clientsRes, isLoading: loadingClients } = useQuery({
     queryKey: ['clients'],
     queryFn: () => apiClient.get('/clients').then(res => res.data),
@@ -38,7 +34,6 @@ export default function ProjectsPage() {
   const clients = clientsRes?.data || [];
   const isLoading = loadingProjects || loadingClients;
 
-  // Create Project Mutation
   const createMutation = useMutation({
     mutationFn: (newProject: any) => apiClient.post('/projects', newProject),
     onSuccess: () => {
@@ -51,7 +46,6 @@ export default function ProjectsPage() {
     }
   });
 
-  // Regenerate Share Token Mutation
   const regenerateTokenMutation = useMutation({
     mutationFn: (id: string) => apiClient.post(`/projects/${id}/share-token/regenerate`),
     onSuccess: () => {
@@ -101,7 +95,6 @@ export default function ProjectsPage() {
     }
   };
 
-  // Filter projects
   const filteredProjects = projects.filter((p: any) => {
     if (filterStatus === 'ALL') return true;
     if (filterStatus === 'ACTIVE') return ['KICKOFF', 'IN_PROGRESS', 'REVIEW', 'REVISION'].includes(p.status);
@@ -127,7 +120,6 @@ export default function ProjectsPage() {
 
   return (
     <div className="flex flex-col gap-8 text-black">
-      {/* Header action */}
       <div className="flex justify-between items-center flex-wrap gap-4 text-left">
         <div>
           <h1 className="text-3xl font-black uppercase tracking-tighter">Projects Tracker</h1>
@@ -141,7 +133,6 @@ export default function ProjectsPage() {
         </button>
       </div>
 
-      {/* Status tabs */}
       <div className="flex border-b border-black/10 gap-6 overflow-x-auto scrollbar-none">
         {[
           { name: 'All projects', value: 'ALL' },
@@ -165,10 +156,9 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      {/* Kanban / List Board */}
       {filteredProjects.length === 0 ? (
         <div className="border border-black/5 rounded-2xl bg-white/60 backdrop-blur-md p-16 flex flex-col items-center justify-center text-center shadow-sm">
-          <FolderKanban className="w-12 h-12 text-zinc-350 mb-4" />
+          <Plus className="w-12 h-12 text-zinc-350 mb-4" />
           <h3 className="font-black text-lg uppercase tracking-tight text-black mb-2">No Projects Found</h3>
           <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider max-w-sm mb-6">Create a project and link it to a client. You can then share real-time updates without client logins.</p>
           <button 
@@ -240,7 +230,6 @@ export default function ProjectsPage() {
         </div>
       )}
 
-      {/* Create Project Modal */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-[#efeae3] rounded-3xl border border-black/5 p-8 flex flex-col gap-6 relative shadow-2xl">

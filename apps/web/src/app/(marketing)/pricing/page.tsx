@@ -118,7 +118,7 @@ export default function PricingPage() {
 
         <div className="text-center max-w-3xl mx-auto mb-24">
           <span className="pricing-hero-label text-zinc-500 text-xs font-black uppercase tracking-widest block mb-4">
-            // Simple Pricing
+            
           </span>
           <h1 className="pricing-hero-title text-5xl md:text-[7vw] font-black uppercase tracking-tighter mb-6 leading-none">
             Plans Built For Teams & Agencies
@@ -179,7 +179,7 @@ export default function PricingPage() {
         <div className="pricing-faq max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-zinc-500 text-xs font-black uppercase tracking-widest block mb-3">
-              // FAQ
+              
             </span>
             <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter">
               Common Questions
