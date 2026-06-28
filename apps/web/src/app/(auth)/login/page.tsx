@@ -2,10 +2,14 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
+import { apiClient } from '@/shared/api/client';
+import { useAuthStore } from '@/shared/store/auth.store';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -14,10 +18,32 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // 1. Authenticate user
+      const loginRes = await apiClient.post('/auth/login', { email, password });
+      const { accessToken } = loginRes.data;
+
+      // 2. Fetch profile and workspace information
+      const meRes = await apiClient.get('/auth/me', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const { user, workspace, role } = meRes.data;
+
+      // 3. Save to Zustand store
+      useAuthStore.getState().setSession(accessToken, { user, workspace, role });
+
+      // 4. Redirect to dashboard
       window.location.href = '/dashboard';
-    }, 1000);
+    } catch (err: any) {
+      console.error(err);
+      setError(
+        err.response?.data?.message || 
+        'Invalid email or password. Please try again.'
+      );
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,7 +62,7 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="p-3 text-sm rounded-xl bg-red-500/10 border border-red-500/20 text-red-700 text-center">
+          <div className="p-3 text-sm rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 text-center font-medium">
             {error}
           </div>
         )}
@@ -61,14 +87,23 @@ export default function LoginPage() {
                 Forgot?
               </Link>
             </div>
-            <input 
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="h-12 px-4 rounded-xl bg-white/60 border border-black/10 text-black placeholder-zinc-400 focus:outline-none focus:border-black text-sm transition-colors"
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="h-12 w-full pl-4 pr-12 rounded-xl bg-white/60 border border-black/10 text-black placeholder-zinc-400 focus:outline-none focus:border-black text-sm transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-500 hover:text-black transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <button 
