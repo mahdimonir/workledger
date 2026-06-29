@@ -5,18 +5,17 @@ import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import { apiClient } from '@/shared/api/client';
 import { useAuthStore } from '@/shared/store/auth.store';
+import { toast } from '@/shared/store/toast.store';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
     
     try {
       const loginRes = await apiClient.post('/auth/login', { email, password });
@@ -30,11 +29,12 @@ export default function LoginPage() {
       const { user, workspace, role } = meRes.data;
 
       useAuthStore.getState().setSession(accessToken, { user, workspace, role });
+      toast.success('Welcome back to WorkLedger!');
 
       window.location.href = '/dashboard';
     } catch (err: any) {
       console.error(err);
-      setError(
+      toast.error(
         err.response?.data?.message || 
         'Invalid email or password. Please try again.'
       );
@@ -56,12 +56,6 @@ export default function LoginPage() {
           <h2 className="text-2xl font-black uppercase tracking-tight mt-6">Welcome Back</h2>
           <p className="text-zinc-650 text-sm font-light">Log in to manage your freelancer ledger</p>
         </div>
-
-        {error && (
-          <div className="p-3 text-sm rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 text-center font-medium">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">

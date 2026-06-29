@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import { apiClient } from '@/shared/api/client';
+import { toast } from '@/shared/store/toast.store';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -13,12 +14,10 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     try {
       await apiClient.post('/auth/signup', {
@@ -27,11 +26,12 @@ export default function SignupPage() {
         email,
         password,
       });
+      toast.success('Workspace created successfully!');
       setSuccess(true);
       setLoading(false);
     } catch (err: any) {
       console.error(err);
-      setError(
+      toast.error(
         err.response?.data?.message || 
         'Registration failed. Please double-check your inputs.'
       );
@@ -53,12 +53,6 @@ export default function SignupPage() {
           <h2 className="text-2xl font-black uppercase tracking-tight mt-6">Create Account</h2>
           <p className="text-zinc-650 text-sm font-light">Onboard your freelancer ledger in seconds</p>
         </div>
-
-        {error && (
-          <div className="p-3 text-sm rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 text-center font-medium">
-            {error}
-          </div>
-        )}
 
         {success ? (
           <div className="flex flex-col items-center gap-4 text-center py-4">

@@ -3,25 +3,25 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { apiClient } from '@/shared/api/client';
+import { toast } from '@/shared/store/toast.store';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     try {
       await apiClient.post('/auth/password/reset-request', { email });
+      toast.success('Reset link sent successfully!');
       setSuccess(true);
       setLoading(false);
     } catch (err: any) {
       console.error(err);
-      setError(
+      toast.error(
         err.response?.data?.message || 
         'Could not process password recovery request. Please try again.'
       );
@@ -43,12 +43,6 @@ export default function ForgotPasswordPage() {
           <h2 className="text-2xl font-black uppercase tracking-tight mt-6">Recover Password</h2>
           <p className="text-zinc-650 text-sm font-light">We will send you a password reset token</p>
         </div>
-
-        {error && (
-          <div className="p-3 text-sm rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 text-center font-medium">
-            {error}
-          </div>
-        )}
 
         {success ? (
           <div className="flex flex-col items-center gap-4 text-center py-4">
