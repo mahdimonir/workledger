@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+const TOKEN_KEY = 'wl_access_token';
+
 interface User {
   id: string;
   email: string;
@@ -26,14 +28,21 @@ interface AuthState {
   clearSession: () => void;
 }
 
+const storedToken = typeof window !== 'undefined'
+  ? localStorage.getItem(TOKEN_KEY)
+  : null;
+
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: null,
+  accessToken: storedToken,
   user: null,
   workspace: null,
   role: null,
-  isAuthenticated: false,
+  isAuthenticated: !!storedToken,
 
   setSession: (token, details) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(TOKEN_KEY, token);
+    }
     set({
       accessToken: token,
       isAuthenticated: true,
@@ -46,6 +55,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   clearSession: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(TOKEN_KEY);
+    }
     set({
       accessToken: null,
       user: null,

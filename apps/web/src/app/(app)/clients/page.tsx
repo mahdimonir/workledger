@@ -198,7 +198,12 @@ export default function ClientsPage() {
                   <tr key={client.id} className="hover:bg-black/5 transition-colors">
                     <td className="p-5">
                       <div className="flex flex-col">
-                        <span className="font-black text-black text-sm">{client.name}</span>
+                        <Link 
+                          href={`/clients/${client.id}`}
+                          className="font-black text-black text-sm hover:underline hover:text-zinc-800 transition-colors"
+                        >
+                          {client.name}
+                        </Link>
                         <span className="text-zinc-450 text-[10px] font-bold uppercase mt-1">{client.company || 'No Company'}</span>
                       </div>
                     </td>
@@ -214,12 +219,21 @@ export default function ClientsPage() {
                       </span>
                     </td>
                     <td className="p-5 text-right flex justify-end gap-2">
+                      <Link 
+                        href={`/clients/${client.id}`}
+                        className="p-2.5 rounded-lg border border-black/5 hover:bg-black/5 text-zinc-600 hover:text-black transition-colors"
+                        title="View Client Details"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
                       <button 
                         onClick={() => handleEditClick(client)}
                         className="p-2.5 rounded-lg border border-black/5 hover:bg-black/5 text-zinc-600 hover:text-black transition-colors"
                         title="Edit Client"
                       >
-                        <Eye className="w-4 h-4" />
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
                       </button>
                       <button 
                         onClick={() => handleDeleteClick(client.id)}

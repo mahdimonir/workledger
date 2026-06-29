@@ -2,12 +2,14 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { apiClient } from '@/shared/api/client';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { toast } from '@/shared/store/toast.store';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -16,26 +18,24 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       const loginRes = await apiClient.post('/auth/login', { email, password });
       const { accessToken } = loginRes.data.data;
 
       const meRes = await apiClient.get('/auth/me', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
       const { user, workspace, role } = meRes.data.data;
 
       useAuthStore.getState().setSession(accessToken, { user, workspace, role });
       toast.success('Welcome back to WorkLedger!');
 
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
     } catch (err: any) {
       console.error(err);
       toast.error(
-        err.response?.data?.message || 
+        err.response?.data?.message ||
         'Invalid email or password. Please try again.'
       );
       setLoading(false);
@@ -60,7 +60,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-black text-zinc-500 uppercase tracking-widest">Email Address</label>
-            <input 
+            <input
               type="email"
               required
               value={email}
@@ -78,7 +78,7 @@ export default function LoginPage() {
               </Link>
             </div>
             <div className="relative">
-              <input 
+              <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
@@ -96,7 +96,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button 
+          <button
             type="submit"
             disabled={loading}
             className="h-12 rounded-xl bg-black hover:bg-zinc-800 text-[#efeae3] font-bold uppercase tracking-widest text-xs transition-colors disabled:opacity-50 mt-2 flex items-center justify-center cursor-pointer shadow-lg"

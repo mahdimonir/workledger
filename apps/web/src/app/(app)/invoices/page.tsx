@@ -293,7 +293,14 @@ export default function InvoicesPage() {
                   const balance = Number(inv.amount || 0) - Number(inv.amountPaid || 0);
                   return (
                     <tr key={inv.id} className="hover:bg-black/5 transition-colors">
-                      <td className="p-5 font-black text-black">{inv.invoiceNumber}</td>
+                      <td className="p-5">
+                        <Link 
+                          href={`/invoices/${inv.id}`}
+                          className="font-black text-black hover:underline hover:text-zinc-800 transition-colors"
+                        >
+                          {inv.invoiceNumber}
+                        </Link>
+                      </td>
                       <td className="p-5">
                         <div className="flex flex-col">
                           <span className="font-bold text-black text-sm">{client?.name || 'Unknown'}</span>

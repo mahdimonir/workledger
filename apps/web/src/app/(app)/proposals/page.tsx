@@ -243,7 +243,12 @@ export default function ProposalsPage() {
                   </div>
 
                   <div>
-                    <h3 className="font-black text-lg text-black tracking-tight">{proposal.title}</h3>
+                    <Link 
+                      href={`/proposals/${proposal.id}`}
+                      className="font-black text-lg text-black tracking-tight hover:underline hover:text-zinc-800 transition-colors"
+                    >
+                      {proposal.title}
+                    </Link>
                     <p className="text-zinc-500 text-[10px] font-bold uppercase mt-1">Client: {client?.name || 'Unknown'} ({client?.company || 'No Company'})</p>
                   </div>
                 </div>

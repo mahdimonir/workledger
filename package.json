@@ -3,9 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev:api":  "pnpm --filter @workledger/api dev",
+    "dev:api":  "pnpm --filter @workledger/api start:dev",
     "dev:web":  "pnpm --filter @workledger/web dev",
-    "dev":      "pnpm --parallel --filter '@workledger/{api,web}' dev",
+    "dev":      "pnpm --parallel --filter '@workledger/api' start:dev --filter '@workledger/web' dev",
     "build":    "pnpm --recursive run build",
     "lint":     "pnpm --recursive run lint",
     "test":     "pnpm --recursive run test"

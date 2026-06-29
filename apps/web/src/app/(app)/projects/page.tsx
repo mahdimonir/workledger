@@ -194,7 +194,12 @@ export default function ProjectsPage() {
                   </div>
                   
                   <div>
-                    <h3 className="font-black text-lg text-black tracking-tight">{project.name}</h3>
+                    <Link 
+                      href={`/projects/${project.id}`}
+                      className="font-black text-lg text-black tracking-tight hover:underline hover:text-zinc-800 transition-colors"
+                    >
+                      {project.name}
+                    </Link>
                     <p className="text-zinc-500 text-[10px] font-bold uppercase mt-1">Client: {projectClient?.name || 'Unknown Client'} ({projectClient?.company || 'No Company'})</p>
                   </div>
                 </div>

@@ -15,7 +15,7 @@ import {
   X
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 export default function AppLayout({
@@ -24,20 +24,21 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { user, workspace, role, isAuthenticated, setSession, clearSession } = useAuthStore();
-  const [loading, setLoading] = useState(!isAuthenticated);
+  const [loading, setLoading] = useState(!isAuthenticated || !user);
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (isAuthenticated) {
+      if (isAuthenticated && user) {
         setLoading(false);
         return;
       }
-      
+
       const token = useAuthStore.getState().accessToken;
       if (!token) {
-        window.location.href = '/login';
+        router.replace('/login');
         return;
       }
 
@@ -48,14 +49,14 @@ export default function AppLayout({
       } catch (err) {
         console.error('Session validation failed:', err);
         clearSession();
-        window.location.href = '/login';
+        router.replace('/login');
       } finally {
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, [isAuthenticated, setSession, clearSession]);
+  }, [isAuthenticated, user, setSession, clearSession]);
 
   const handleLogout = async () => {
     try {
@@ -64,7 +65,7 @@ export default function AppLayout({
       console.error('Logout error:', err);
     } finally {
       clearSession();
-      window.location.href = '/';
+      router.push('/');
     }
   };
 

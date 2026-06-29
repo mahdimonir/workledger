@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   TrendingUp, 
   Users, 
@@ -9,12 +9,60 @@ import {
   Receipt,
   Plus,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Calendar,
+  DollarSign,
+  Trash
 } from 'lucide-react';
 import Link from 'next/link';
 import { apiClient } from '@/shared/api/client';
+import SlideOver from '@/shared/components/SlideOver';
+import { nanoid } from 'nanoid';
 
 export default function DashboardPage() {
+  const queryClient = useQueryClient();
+  
+  // SlideOver visibility states
+  const [isClientOpen, setIsClientOpen] = useState(false);
+  const [isProjectOpen, setIsProjectOpen] = useState(false);
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+
+  // Form states - Client
+  const [clientName, setClientName] = useState('');
+  const [clientCompany, setClientCompany] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [clientAddress, setClientAddress] = useState('');
+  const [clientNotes, setClientNotes] = useState('');
+  const [clientError, setClientError] = useState('');
+
+  // Form states - Project
+  const [projectName, setProjectName] = useState('');
+  const [projectClientId, setProjectClientId] = useState('');
+  const [projectBudget, setProjectBudget] = useState('');
+  const [projectDeadline, setProjectDeadline] = useState('');
+  const [projectPriority, setProjectPriority] = useState('MEDIUM');
+  const [projectStatus, setProjectStatus] = useState('KICKOFF');
+  const [projectError, setProjectError] = useState('');
+
+  // Form states - Invoice
+  const [invoiceClientId, setInvoiceClientId] = useState('');
+  const [invoiceProjectId, setInvoiceProjectId] = useState('');
+  const [invoiceDueDate, setInvoiceDueDate] = useState('');
+  const [invoiceDiscountVal, setInvoiceDiscountVal] = useState('0');
+  const [invoiceDiscountType, setInvoiceDiscountType] = useState('fixed');
+  const [invoiceNotes, setInvoiceNotes] = useState('');
+  const [invoiceError, setInvoiceError] = useState('');
+  const [invoiceLineItems, setInvoiceLineItems] = useState<Array<{ description: string; quantity: number; rate: number; taxRate: number }>>([
+    { description: '', quantity: 1, rate: 0, taxRate: 0 }
+  ]);
+
+  // Idempotency keys generated once per drawer mount
+  const clientIdempotency = useRef(nanoid());
+  const projectIdempotency = useRef(nanoid());
+  const invoiceIdempotency = useRef(nanoid());
+
+  // Fetching data
   const { data: clientsRes, isLoading: loadingClients } = useQuery({
     queryKey: ['clients'],
     queryFn: () => apiClient.get('/clients').then(res => res.data),
@@ -36,6 +84,141 @@ export default function DashboardPage() {
 
   const isLoading = loadingClients || loadingProjects || loadingInvoices;
 
+  // Mutations
+  const clientMutation = useMutation({
+    mutationFn: (newClient: any) => apiClient.post('/clients', newClient, {
+      headers: { 'Idempotency-Key': clientIdempotency.current }
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      setIsClientOpen(false);
+      resetClientForm();
+    },
+    onError: (err: any) => {
+      setClientError(err.response?.data?.message || 'Failed to create client.');
+    }
+  });
+
+  const projectMutation = useMutation({
+    mutationFn: (newProject: any) => apiClient.post('/projects', newProject, {
+      headers: { 'Idempotency-Key': projectIdempotency.current }
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      setIsProjectOpen(false);
+      resetProjectForm();
+    },
+    onError: (err: any) => {
+      setProjectError(err.response?.data?.message || 'Failed to create project.');
+    }
+  });
+
+  const invoiceMutation = useMutation({
+    mutationFn: (newInvoice: any) => apiClient.post('/invoices', newInvoice, {
+      headers: { 'Idempotency-Key': invoiceIdempotency.current }
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      setIsInvoiceOpen(false);
+      resetInvoiceForm();
+    },
+    onError: (err: any) => {
+      setInvoiceError(err.response?.data?.message || 'Failed to create invoice.');
+    }
+  });
+
+  // Resets
+  const resetClientForm = () => {
+    setClientName('');
+    setClientCompany('');
+    setClientEmail('');
+    setClientPhone('');
+    setClientAddress('');
+    setClientNotes('');
+    setClientError('');
+    clientIdempotency.current = nanoid();
+  };
+
+  const resetProjectForm = () => {
+    setProjectName('');
+    setProjectClientId('');
+    setProjectBudget('');
+    setProjectDeadline('');
+    setProjectPriority('MEDIUM');
+    setProjectStatus('KICKOFF');
+    setProjectError('');
+    projectIdempotency.current = nanoid();
+  };
+
+  const resetInvoiceForm = () => {
+    setInvoiceClientId('');
+    setInvoiceProjectId('');
+    setInvoiceDueDate('');
+    setInvoiceDiscountVal('0');
+    setInvoiceDiscountType('fixed');
+    setInvoiceNotes('');
+    setInvoiceLineItems([{ description: '', quantity: 1, rate: 0, taxRate: 0 }]);
+    setInvoiceError('');
+    invoiceIdempotency.current = nanoid();
+  };
+
+  // Submits
+  const handleClientSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    clientMutation.mutate({
+      name: clientName,
+      company: clientCompany || undefined,
+      email: clientEmail || undefined,
+      phone: clientPhone || undefined,
+      address: clientAddress || undefined,
+      notes: clientNotes || undefined,
+    });
+  };
+
+  const handleProjectSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!projectClientId) {
+      setProjectError('Please select a client.');
+      return;
+    }
+    projectMutation.mutate({
+      name: projectName,
+      clientId: projectClientId,
+      budget: parseFloat(projectBudget) || 0,
+      deadline: new Date(projectDeadline).toISOString(),
+      priority: projectPriority,
+      status: projectStatus,
+    });
+  };
+
+  const handleInvoiceSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!invoiceClientId) {
+      setInvoiceError('Please select a client.');
+      return;
+    }
+    const cleanLineItems = invoiceLineItems.filter(item => item.description.trim() !== '');
+    if (cleanLineItems.length === 0) {
+      setInvoiceError('Please add at least one line item with a description.');
+      return;
+    }
+    invoiceMutation.mutate({
+      clientId: invoiceClientId,
+      projectId: invoiceProjectId || undefined,
+      lineItems: cleanLineItems.map(item => ({
+        description: item.description,
+        quantity: Number(item.quantity),
+        rate: Number(item.rate),
+        taxRate: Number(item.taxRate) || 0
+      })),
+      discountValue: Number(invoiceDiscountVal) || 0,
+      discountType: invoiceDiscountType,
+      dueDate: invoiceDueDate ? new Date(invoiceDueDate).toISOString() : undefined,
+      notes: invoiceNotes || undefined,
+    });
+  };
+
+  // Calculations for stats
   const totalRevenue = invoices
     .filter((inv: any) => inv.status === 'PAID')
     .reduce((sum: number, inv: any) => sum + Number(inv.amount || 0), 0);
@@ -86,7 +269,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8 text-black">
       <div className="flex justify-between items-center">
-        <div>
+        <div className="text-left">
           <h1 className="text-3xl font-black uppercase tracking-tighter">Business Health</h1>
           <p className="text-zinc-500 text-xs uppercase tracking-wider font-bold mt-1.5">Unified operations and financial ledger overview</p>
         </div>
@@ -133,41 +316,53 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="flex flex-col divide-y divide-black/5">
-              {sortedProjects.map((project) => (
-                <div key={project.id} className="py-3.5 flex items-center justify-between gap-4">
-                  <div className="flex flex-col text-left">
-                    <span className="font-bold text-sm text-black">{project.name}</span>
-                    <span className="text-zinc-450 text-[10px] uppercase font-bold mt-1">Client ID: {project.clientId.slice(0, 8)}</span>
+              {sortedProjects.map((project) => {
+                const projectClient = clients.find((c: any) => c.id === project.clientId);
+                return (
+                  <div key={project.id} className="py-3.5 flex items-center justify-between gap-4">
+                    <div className="flex flex-col text-left">
+                      <span className="font-bold text-sm text-black">{project.name}</span>
+                      <span className="text-zinc-400 text-[10px] uppercase font-bold mt-1">Client: {projectClient?.name || 'Unknown'}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase ${
+                        project.status === 'IN_PROGRESS' ? 'bg-purple-100 text-purple-800' :
+                        project.status === 'KICKOFF' ? 'bg-blue-100 text-blue-800' :
+                        project.status === 'REVIEW' ? 'bg-amber-100 text-amber-800' : 'bg-zinc-100 text-zinc-800'
+                      }`}>
+                        {project.status.replace('_', ' ')}
+                      </span>
+                      <span className="text-xs font-bold text-zinc-550">{new Date(project.deadline).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase ${
-                      project.status === 'IN_PROGRESS' ? 'bg-purple-100 text-purple-800' :
-                      project.status === 'KICKOFF' ? 'bg-blue-100 text-blue-800' :
-                      project.status === 'REVIEW' ? 'bg-amber-100 text-amber-800' : 'bg-zinc-100 text-zinc-800'
-                    }`}>
-                      {project.status.replace('_', ' ')}
-                    </span>
-                    <span className="text-xs font-bold text-zinc-500">{new Date(project.deadline).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
 
-        <div className="p-6 rounded-2xl border border-black/5 bg-[#f5f2ee] flex flex-col gap-6 shadow-sm justify-between">
+        <div className="p-6 rounded-2xl border border-black/5 bg-[#f5f2ee] flex flex-col gap-6 shadow-sm justify-between text-left">
           <div>
             <h3 className="font-black text-xs uppercase tracking-widest mb-4">Quick Actions</h3>
             <div className="flex flex-col gap-3">
-              <Link href="/clients" className="w-full h-12 rounded-xl bg-black hover:bg-zinc-800 text-[#efeae3] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer animate-none hover:scale-[1.01] duration-150">
+              <button 
+                onClick={() => { resetClientForm(); setIsClientOpen(true); }}
+                className="w-full h-12 rounded-xl bg-black hover:bg-zinc-800 text-[#efeae3] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
                 <Plus className="w-4 h-4" /> New Client
-              </Link>
-              <Link href="/projects" className="w-full h-12 rounded-xl bg-black hover:bg-zinc-800 text-[#efeae3] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer animate-none hover:scale-[1.01] duration-150">
+              </button>
+              <button 
+                onClick={() => { resetProjectForm(); setIsProjectOpen(true); }}
+                className="w-full h-12 rounded-xl bg-black hover:bg-zinc-800 text-[#efeae3] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
                 <Plus className="w-4 h-4" /> New Project
-              </Link>
-              <Link href="/invoices" className="w-full h-12 rounded-xl bg-black hover:bg-zinc-800 text-[#efeae3] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer animate-none hover:scale-[1.01] duration-150">
+              </button>
+              <button 
+                onClick={() => { resetInvoiceForm(); setIsInvoiceOpen(true); }}
+                className="w-full h-12 rounded-xl bg-black hover:bg-zinc-800 text-[#efeae3] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
                 <Plus className="w-4 h-4" /> New Invoice
-              </Link>
+              </button>
             </div>
           </div>
           <div className="p-4 rounded-xl border border-black/5 bg-white/40 flex flex-col gap-1 text-left mt-4">
@@ -225,6 +420,318 @@ export default function DashboardPage() {
         )}
       </div>
 
+      {/* SlideOver for New Client */}
+      <SlideOver isOpen={isClientOpen} onClose={() => setIsClientOpen(false)} title="Create Client">
+        {clientError && (
+          <div className="mb-4 p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 font-semibold text-center">
+            {clientError}
+          </div>
+        )}
+        <form onSubmit={handleClientSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Client Name *</label>
+            <input 
+              type="text" required value={clientName} onChange={(e) => setClientName(e.target.value)}
+              placeholder="e.g. John Doe"
+              className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Company</label>
+            <input 
+              type="text" value={clientCompany} onChange={(e) => setClientCompany(e.target.value)}
+              placeholder="e.g. Acme Corp"
+              className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Email</label>
+            <input 
+              type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)}
+              placeholder="john@acmecorp.com"
+              className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Phone</label>
+            <input 
+              type="text" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)}
+              placeholder="+1 (555) 000-0000"
+              className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Address</label>
+            <textarea 
+              value={clientAddress} onChange={(e) => setClientAddress(e.target.value)}
+              placeholder="Client physical address"
+              rows={2}
+              className="p-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black resize-none"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Internal Notes</label>
+            <textarea 
+              value={clientNotes} onChange={(e) => setClientNotes(e.target.value)}
+              placeholder="Notes visible only to team"
+              rows={2}
+              className="p-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black resize-none"
+            />
+          </div>
+          <button 
+            type="submit" disabled={clientMutation.isPending}
+            className="h-12 rounded-xl bg-black hover:bg-zinc-800 text-[#efeae3] font-bold uppercase tracking-widest text-xs transition-colors disabled:opacity-50 mt-4 flex items-center justify-center cursor-pointer shadow-lg"
+          >
+            {clientMutation.isPending ? 'Creating...' : 'Create Client'}
+          </button>
+        </form>
+      </SlideOver>
+
+      {/* SlideOver for New Project */}
+      <SlideOver isOpen={isProjectOpen} onClose={() => setIsProjectOpen(false)} title="Create Project">
+        {projectError && (
+          <div className="mb-4 p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 font-semibold text-center">
+            {projectError}
+          </div>
+        )}
+        <form onSubmit={handleProjectSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Project Name *</label>
+            <input 
+              type="text" required value={projectName} onChange={(e) => setProjectName(e.target.value)}
+              placeholder="e.g. App Development"
+              className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Client *</label>
+            <select
+              value={projectClientId} onChange={(e) => setProjectClientId(e.target.value)}
+              className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black font-bold uppercase tracking-wider"
+            >
+              <option value="">Select a Client</option>
+              {clients.map((c: any) => (
+                <option key={c.id} value={c.id}>{c.name} ({c.company || 'No Company'})</option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Budget ($) *</label>
+              <input 
+                type="number" required value={projectBudget} onChange={(e) => setProjectBudget(e.target.value)}
+                placeholder="5000"
+                className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Deadline *</label>
+              <input 
+                type="date" required value={projectDeadline} onChange={(e) => setProjectDeadline(e.target.value)}
+                className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black font-bold uppercase"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Priority</label>
+              <select
+                value={projectPriority} onChange={(e) => setProjectPriority(e.target.value)}
+                className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black font-bold uppercase tracking-wider"
+              >
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="URGENT">Urgent</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Pipeline Stage</label>
+              <select
+                value={projectStatus} onChange={(e) => setProjectStatus(e.target.value)}
+                className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black font-bold uppercase tracking-wider"
+              >
+                <option value="LEAD">Lead</option>
+                <option value="KICKOFF">Kickoff</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="REVIEW">Review</option>
+                <option value="REVISION">Revision</option>
+                <option value="DELIVERED">Delivered</option>
+              </select>
+            </div>
+          </div>
+          <button 
+            type="submit" disabled={projectMutation.isPending}
+            className="h-12 rounded-xl bg-black hover:bg-zinc-800 text-[#efeae3] font-bold uppercase tracking-widest text-xs transition-colors disabled:opacity-50 mt-4 flex items-center justify-center cursor-pointer shadow-lg"
+          >
+            {projectMutation.isPending ? 'Creating...' : 'Create Project'}
+          </button>
+        </form>
+      </SlideOver>
+
+      {/* SlideOver for New Invoice */}
+      <SlideOver isOpen={isInvoiceOpen} onClose={() => setIsInvoiceOpen(false)} title="Create Invoice">
+        {invoiceError && (
+          <div className="mb-4 p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 font-semibold text-center">
+            {invoiceError}
+          </div>
+        )}
+        <form onSubmit={handleInvoiceSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Client *</label>
+            <select
+              value={invoiceClientId} onChange={(e) => setInvoiceClientId(e.target.value)}
+              className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black font-bold uppercase tracking-wider"
+            >
+              <option value="">Select a Client</option>
+              {clients.map((c: any) => (
+                <option key={c.id} value={c.id}>{c.name} ({c.company || 'No Company'})</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Project</label>
+            <select
+              value={invoiceProjectId} onChange={(e) => setInvoiceProjectId(e.target.value)}
+              className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black font-bold uppercase tracking-wider"
+            >
+              <option value="">Select a Project (Optional)</option>
+              {projects.filter((p: any) => !invoiceClientId || p.clientId === invoiceClientId).map((p: any) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Due Date *</label>
+              <input 
+                type="date" required value={invoiceDueDate} onChange={(e) => setInvoiceDueDate(e.target.value)}
+                className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black font-bold uppercase"
+              />
+            </div>
+            
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Discount Type</label>
+              <select
+                value={invoiceDiscountType} onChange={(e) => setInvoiceDiscountType(e.target.value)}
+                className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black font-bold uppercase tracking-wider"
+              >
+                <option value="fixed">Fixed ($)</option>
+                <option value="percentage">Percentage (%)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Discount Value</label>
+              <input 
+                type="number" value={invoiceDiscountVal} onChange={(e) => setInvoiceDiscountVal(e.target.value)}
+                className="h-11 px-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2.5 mt-2">
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Line Items *</span>
+              <button
+                type="button"
+                onClick={() => setInvoiceLineItems([...invoiceLineItems, { description: '', quantity: 1, rate: 0, taxRate: 0 }])}
+                className="text-[10px] font-black text-zinc-650 hover:text-black uppercase tracking-wider bg-black/5 px-2.5 py-1 rounded-lg border border-black/5 transition-all"
+              >
+                + Add Item
+              </button>
+            </div>
+
+            {invoiceLineItems.map((item, index) => (
+              <div key={index} className="p-4 rounded-2xl bg-white/40 border border-black/5 flex flex-col gap-3 relative text-left">
+                <button
+                  type="button"
+                  onClick={() => setInvoiceLineItems(invoiceLineItems.filter((_, i) => i !== index))}
+                  className="absolute top-3 right-3 text-zinc-400 hover:text-rose-600 transition-colors p-1"
+                  disabled={invoiceLineItems.length === 1}
+                >
+                  <Trash className="w-3.5 h-3.5" />
+                </button>
+
+                <div className="flex flex-col gap-1.5 pr-6">
+                  <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Description</label>
+                  <input 
+                    type="text" required value={item.description}
+                    onChange={(e) => {
+                      const newItems = [...invoiceLineItems];
+                      newItems[index].description = e.target.value;
+                      setInvoiceLineItems(newItems);
+                    }}
+                    placeholder="e.g. Design Consulting"
+                    className="h-9 px-3 rounded-lg bg-white/90 border border-black/10 text-xs focus:outline-none focus:border-black text-black"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Qty</label>
+                    <input 
+                      type="number" required min="1" value={item.quantity}
+                      onChange={(e) => {
+                        const newItems = [...invoiceLineItems];
+                        newItems[index].quantity = Number(e.target.value);
+                        setInvoiceLineItems(newItems);
+                      }}
+                      className="h-9 px-3 rounded-lg bg-white/90 border border-black/10 text-xs focus:outline-none focus:border-black text-black"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Rate ($)</label>
+                    <input 
+                      type="number" required min="0" value={item.rate}
+                      onChange={(e) => {
+                        const newItems = [...invoiceLineItems];
+                        newItems[index].rate = Number(e.target.value);
+                        setInvoiceLineItems(newItems);
+                      }}
+                      className="h-9 px-3 rounded-lg bg-white/90 border border-black/10 text-xs focus:outline-none focus:border-black text-black"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Tax (%)</label>
+                    <input 
+                      type="number" min="0" max="100" value={item.taxRate}
+                      onChange={(e) => {
+                        const newItems = [...invoiceLineItems];
+                        newItems[index].taxRate = Number(e.target.value);
+                        setInvoiceLineItems(newItems);
+                      }}
+                      className="h-9 px-3 rounded-lg bg-white/90 border border-black/10 text-xs focus:outline-none focus:border-black text-black"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-1.5 mt-2">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Client Notes</label>
+            <textarea 
+              value={invoiceNotes} onChange={(e) => setInvoiceNotes(e.target.value)}
+              placeholder="Terms, payment directions, or thank you note"
+              rows={2}
+              className="p-4 rounded-xl bg-white/80 border border-black/10 text-sm focus:outline-none focus:border-black text-black resize-none"
+            />
+          </div>
+
+          <button 
+            type="submit" disabled={invoiceMutation.isPending}
+            className="h-12 rounded-xl bg-black hover:bg-zinc-800 text-[#efeae3] font-bold uppercase tracking-widest text-xs transition-colors disabled:opacity-50 mt-4 flex items-center justify-center cursor-pointer shadow-lg"
+          >
+            {invoiceMutation.isPending ? 'Creating...' : 'Create Invoice'}
+          </button>
+        </form>
+      </SlideOver>
     </div>
   );
 }
+
