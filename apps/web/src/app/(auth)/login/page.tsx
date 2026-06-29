@@ -19,14 +19,14 @@ export default function LoginPage() {
     
     try {
       const loginRes = await apiClient.post('/auth/login', { email, password });
-      const { accessToken } = loginRes.data;
+      const { accessToken } = loginRes.data.data;
 
       const meRes = await apiClient.get('/auth/me', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      const { user, workspace, role } = meRes.data;
+      const { user, workspace, role } = meRes.data.data;
 
       useAuthStore.getState().setSession(accessToken, { user, workspace, role });
       toast.success('Welcome back to WorkLedger!');
