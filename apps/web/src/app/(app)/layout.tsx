@@ -45,6 +45,9 @@ export default function AppLayout({
       try {
         const meRes = await apiClient.get('/auth/me');
         const { user, workspace, role } = meRes.data.data;
+        if (workspace && workspace.businessName) {
+          document.cookie = `wl_onboarding_complete=true; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax`;
+        }
         setSession(token, { user, workspace, role });
       } catch (err) {
         console.error('Session validation failed:', err);

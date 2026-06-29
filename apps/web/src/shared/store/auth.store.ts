@@ -42,6 +42,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   setSession: (token, details) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem(TOKEN_KEY, token);
+      document.cookie = `wl_logged_in=true; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+      if (details?.workspace?.businessName) {
+        document.cookie = `wl_onboarding_complete=true; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax`;
+      }
     }
     set({
       accessToken: token,
@@ -57,6 +61,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   clearSession: () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(TOKEN_KEY);
+      document.cookie = 'wl_logged_in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+      document.cookie = 'wl_onboarding_complete=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     }
     set({
       accessToken: null,

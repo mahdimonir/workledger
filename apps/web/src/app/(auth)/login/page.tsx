@@ -28,6 +28,10 @@ export default function LoginPage() {
       });
       const { user, workspace, role } = meRes.data.data;
 
+      if (workspace && workspace.businessName) {
+        document.cookie = `wl_onboarding_complete=true; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax`;
+      }
+
       useAuthStore.getState().setSession(accessToken, { user, workspace, role });
       toast.success('Welcome back to WorkLedger!');
 

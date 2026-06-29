@@ -176,19 +176,29 @@ export class AuthController {
   }
 
   private setRefreshTokenCookie(res: Response, token: string) {
-    res.cookie('refreshToken', token, {
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieOptions: any = {
       httpOnly: true,
-      secure:   process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      secure:   true,
+      sameSite: isProd ? 'lax' : 'none',
       maxAge:   7 * 24 * 60 * 60 * 1000,
-    });
+    };
+    if (isProd) {
+      cookieOptions.domain = '.workledger.io';
+    }
+    res.cookie('refreshToken', token, cookieOptions);
   }
 
   private clearRefreshTokenCookie(res: Response) {
-    res.clearCookie('refreshToken', {
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieOptions: any = {
       httpOnly: true,
-      secure:   process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-    });
+      secure:   true,
+      sameSite: isProd ? 'lax' : 'none',
+    };
+    if (isProd) {
+      cookieOptions.domain = '.workledger.io';
+    }
+    res.clearCookie('refreshToken', cookieOptions);
   }
 }
