@@ -10,13 +10,13 @@ import (
 )
 
 func HTMLToPDF(htmlContent string) ([]byte, error) {
-	// Create chromedp context
+	
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
 	var buf []byte
 
-	// JSON marshal safely escapes HTML for JS injection
+	
 	escapedHTML, err := json.Marshal(htmlContent)
 	if err != nil {
 		return nil, fmt.Errorf("failed to JSON escape HTML content: %w", err)
@@ -29,7 +29,7 @@ func HTMLToPDF(htmlContent string) ([]byte, error) {
 		chromedp.Evaluate(jsExpr, nil),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			var err error
-			// Generate PDF in A4 format with backgrounds enabled
+			
 			buf, _, err = page.PrintToPDF().
 				WithPrintBackground(true).
 				WithPaperWidth(8.27).

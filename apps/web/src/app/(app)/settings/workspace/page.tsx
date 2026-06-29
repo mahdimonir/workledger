@@ -21,14 +21,14 @@ export default function WorkspaceSettingsPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Queries
+  
   const { data: settingsRes, isLoading } = useQuery({
     queryKey: ['workspace-settings'],
     queryFn: () => apiClient.get('/workspace/settings').then((res) => res.data),
     enabled: isOwner || role === 'MANAGER',
   });
 
-  const settings = settingsRes?.data || settingsRes; // depending on structure wrap
+  const settings = settingsRes?.data || settingsRes; 
 
   useEffect(() => {
     if (settings) {
@@ -44,7 +44,7 @@ export default function WorkspaceSettingsPage() {
     }
   }, [settings, workspace]);
 
-  // Mutations
+  
   const updateMutation = useMutation({
     mutationFn: (data: any) => apiClient.patch('/workspace/settings', data),
     onSuccess: (res) => {
@@ -52,7 +52,7 @@ export default function WorkspaceSettingsPage() {
       setSuccess(true);
       setError('');
 
-      // Sync name in header Zustand store session
+      
       if (accessToken && res.data?.data) {
         const user = useAuthStore.getState().user;
         if (user) {

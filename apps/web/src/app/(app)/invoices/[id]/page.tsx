@@ -30,7 +30,7 @@ export default function InvoiceDetailsPage() {
   const [payDate, setPayDate] = useState(new Date().toISOString().split('T')[0]);
   const [error, setError] = useState('');
 
-  // Queries
+  
   const { data: invoiceRes, isLoading: loadingInvoice } = useQuery({
     queryKey: ['invoice', invoiceId],
     queryFn: () => apiClient.get(`/invoices/${invoiceId}`).then((res) => res.data),
@@ -47,7 +47,7 @@ export default function InvoiceDetailsPage() {
 
   const isLoading = loadingInvoice || loadingClients;
 
-  // Mutations
+  
   const sendMutation = useMutation({
     mutationFn: () => apiClient.post(`/invoices/${invoiceId}/send`),
     onSuccess: () => {
@@ -129,7 +129,7 @@ export default function InvoiceDetailsPage() {
 
   return (
     <div className="flex flex-col gap-8 text-black text-left">
-      {/* Back and Title Header */}
+      {}
       <div className="flex flex-col gap-4">
         <Link 
           href="/invoices"
@@ -156,7 +156,7 @@ export default function InvoiceDetailsPage() {
         </div>
       </div>
 
-      {/* Action panel */}
+      {}
       <div className="flex flex-wrap gap-3">
         {invoice.status === 'DRAFT' && (
           <button
@@ -189,10 +189,10 @@ export default function InvoiceDetailsPage() {
         )}
       </div>
 
-      {/* Grid panels */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        {/* Line Items Card */}
+        {}
         <div className="md:col-span-2 p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md flex flex-col gap-6 shadow-sm">
           <h3 className="font-black text-xs uppercase tracking-widest border-b border-black/5 pb-3">Invoice Details</h3>
           
@@ -227,7 +227,7 @@ export default function InvoiceDetailsPage() {
           </div>
         </div>
 
-        {/* Totals Summary Panel */}
+        {}
         <div className="p-6 rounded-2xl border border-black/5 bg-[#f5f2ee] flex flex-col gap-6 shadow-sm justify-between">
           <div className="flex flex-col gap-4">
             <h3 className="font-black text-xs uppercase tracking-widest border-b border-black/5 pb-3">Financial aggregates</h3>
@@ -269,7 +269,7 @@ export default function InvoiceDetailsPage() {
         </div>
       </div>
 
-      {/* Payment History Timeline */}
+      {}
       <div className="p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md shadow-sm flex flex-col gap-4 max-w-3xl">
         <h3 className="font-black text-xs uppercase tracking-widest text-zinc-500">Payments Recorded</h3>
         
@@ -292,7 +292,7 @@ export default function InvoiceDetailsPage() {
         )}
       </div>
 
-      {/* Record Payment Drawer */}
+      {}
       <SlideOver isOpen={isPayOpen} onClose={() => setIsPayOpen(false)} title="Record Payment">
         {error && (
           <div className="mb-4 p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 font-semibold text-center">

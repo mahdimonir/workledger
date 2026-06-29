@@ -21,7 +21,7 @@ export class R2Adapter implements StorageService {
     this.bucketName =
       this.configService.get<string>('r2.bucketName') || 'workledger-files';
 
-    // R2 endpoint utilizes the account ID: https://<accountId>.r2.cloudflarestorage.com
+    
     this.s3Client = new S3Client({
       region: 'auto',
       endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
@@ -46,7 +46,7 @@ export class R2Adapter implements StorageService {
       ContentType: mimeType,
     });
 
-    // Generate pre-signed PUT URL valid for 15 minutes (900 seconds)
+    
     const uploadUrl = await getSignedUrl(this.s3Client, command, { expiresIn: 900 });
 
     const publicUrlConfig = this.configService.get<string>('r2.publicUrl');

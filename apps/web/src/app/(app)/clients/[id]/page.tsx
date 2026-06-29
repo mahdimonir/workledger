@@ -14,7 +14,8 @@ import {
   FolderKanban, 
   Receipt,
   ArrowLeft,
-  Calendar
+  Calendar,
+  DollarSign
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -24,7 +25,7 @@ export default function ClientDetailsPage() {
   const clientId = params.id as string;
   const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'PROJECTS' | 'INVOICES' | 'PROPOSALS'>('OVERVIEW');
 
-  // Queries
+  
   const { data: clientRes, isLoading: loadingClient } = useQuery({
     queryKey: ['client', clientId],
     queryFn: () => apiClient.get(`/clients/${clientId}`).then((res) => res.data),
@@ -75,12 +76,12 @@ export default function ClientDetailsPage() {
     );
   }
 
-  // Filter linked entities
+  
   const clientProjects = allProjects.filter((p: any) => p.clientId === clientId);
   const clientInvoices = allInvoices.filter((i: any) => i.clientId === clientId);
   const clientProposals = allProposals.filter((p: any) => p.clientId === clientId);
 
-  // Financial aggregates
+  
   const totalBilled = clientInvoices.reduce((sum: number, inv: any) => sum + Number(inv.amount || 0), 0);
   const totalPaid = clientInvoices
     .filter((inv: any) => inv.status === 'PAID')
@@ -98,7 +99,7 @@ export default function ClientDetailsPage() {
 
   return (
     <div className="flex flex-col gap-8 text-black text-left">
-      {/* Back & Title Header */}
+      {}
       <div className="flex flex-col gap-4">
         <Link 
           href="/clients"
@@ -112,7 +113,7 @@ export default function ClientDetailsPage() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {}
       <div className="flex border-b border-black/10 gap-6 overflow-x-auto scrollbar-none">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -140,10 +141,10 @@ export default function ClientDetailsPage() {
         })}
       </div>
 
-      {/* Tab Panels */}
+      {}
       {activeTab === 'OVERVIEW' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Contact Details Card */}
+          {}
           <div className="md:col-span-2 p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md flex flex-col gap-6 shadow-sm">
             <h3 className="font-black text-xs uppercase tracking-widest border-b border-black/5 pb-3">Client Profile</h3>
             
@@ -203,7 +204,7 @@ export default function ClientDetailsPage() {
             )}
           </div>
 
-          {/* Financial Aggregates Card */}
+          {}
           <div className="p-6 rounded-2xl border border-black/5 bg-[#f5f2ee] flex flex-col gap-6 shadow-sm justify-between">
             <div className="flex flex-col gap-4">
               <h3 className="font-black text-xs uppercase tracking-widest border-b border-black/5 pb-3">Ledger Summary</h3>

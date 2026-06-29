@@ -30,7 +30,7 @@ export default function SettingsLayout({
       </div>
 
       <div className="flex flex-col md:flex-row gap-8 items-start">
-        {/* Settings Navigation Sidebar */}
+        {}
         <aside className="w-full md:w-64 flex flex-col gap-1.5 p-4 rounded-2xl border border-black/5 bg-[#f5f2ee] shadow-sm">
           {menuItems.map((item) => {
             const active = pathname === item.href;
@@ -54,7 +54,7 @@ export default function SettingsLayout({
           })}
         </aside>
 
-        {/* Settings Content Area */}
+        {}
         <main className="flex-1 w-full p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md shadow-sm">
           {children}
         </main>

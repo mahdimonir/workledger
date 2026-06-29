@@ -16,7 +16,7 @@ export class CommentService {
   ) {
     const { content, parentId, isInternal, attachments } = dto;
 
-    // Check project exists
+    
     const project = await this.prisma.project.findFirst({
       where: { id: projectId, workspaceId, deletedAt: null },
     });
@@ -24,7 +24,7 @@ export class CommentService {
       throw new NotFoundException('Project not found');
     }
 
-    // Check parent comment if specified
+    
     if (parentId) {
       const parentComment = await this.prisma.comment.findFirst({
         where: { id: parentId, projectId, workspaceId, deletedAt: null },
@@ -34,7 +34,7 @@ export class CommentService {
       }
     }
 
-    // Fetch user details to get name
+    
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -50,7 +50,7 @@ export class CommentService {
         content,
         authorId: userId,
         authorName: user.name,
-        authorType: 'freelancer', // Default type for workspace users
+        authorType: 'freelancer', 
         isInternal: isInternal || false,
         attachments: attachments || null,
       },
@@ -62,8 +62,8 @@ export class CommentService {
     projectId: string,
     query: CommentQueryDto,
   ) {
-    // We want to fetch comments for the project
-    // To construct the full nested tree correctly, we fetch all non-deleted comments first
+    
+    
     const comments = await this.prisma.comment.findMany({
       where: {
         workspaceId,
@@ -73,7 +73,7 @@ export class CommentService {
       orderBy: { createdAt: 'asc' },
     });
 
-    // Build hierarchical comment tree
+    
     const commentMap = new Map<string, any>();
     const rootComments: any[] = [];
 
@@ -88,7 +88,7 @@ export class CommentService {
         if (parent) {
           parent.replies.push(mapped);
         } else {
-          // If parent is deleted or not found, show as root
+          
           rootComments.push(mapped);
         }
       } else {
@@ -96,7 +96,7 @@ export class CommentService {
       }
     }
 
-    // Paginate root comments
+    
     const page = query.page || 1;
     const limit = query.limit || 20;
     const skip = (page - 1) * limit;
@@ -127,7 +127,7 @@ export class CommentService {
       throw new NotFoundException('Comment not found');
     }
 
-    // Only the author can update their comment
+    
     if (comment.authorId !== userId) {
       throw new ForbiddenException('You can only edit your own comments');
     }
@@ -156,7 +156,7 @@ export class CommentService {
       throw new NotFoundException('Comment not found');
     }
 
-    // Author, owner or managers can delete comments
+    
     const isAuthor = comment.authorId === userId;
     const isPrivileged = userRole === 'OWNER' || userRole === 'MANAGER';
     

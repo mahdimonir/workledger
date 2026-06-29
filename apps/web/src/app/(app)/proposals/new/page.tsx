@@ -11,7 +11,7 @@ export default function NewProposalPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // Form states
+  
   const [clientId, setClientId] = useState('');
   const [title, setTitle] = useState('');
   const [introduction, setIntroduction] = useState('');
@@ -21,7 +21,7 @@ export default function NewProposalPage() {
   ]);
   const [error, setError] = useState('');
 
-  // Queries
+  
   const { data: clientsRes } = useQuery({
     queryKey: ['clients'],
     queryFn: () => apiClient.get('/clients').then(res => res.data),
@@ -29,7 +29,7 @@ export default function NewProposalPage() {
 
   const clients = clientsRes?.data || [];
 
-  // Mutations
+  
   const createMutation = useMutation({
     mutationFn: (newProposal: any) => apiClient.post('/proposals', newProposal),
     onSuccess: (res) => {
@@ -69,7 +69,7 @@ export default function NewProposalPage() {
 
   return (
     <div className="flex flex-col gap-8 text-black text-left max-w-3xl">
-      {/* Back and Title Header */}
+      {}
       <div className="flex flex-col gap-4">
         <Link 
           href="/proposals"
@@ -146,7 +146,7 @@ export default function NewProposalPage() {
           </div>
         </div>
 
-        {/* Line Items Card */}
+        {}
         <div className="p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md shadow-sm flex flex-col gap-4">
           <div className="flex justify-between items-center border-b border-black/5 pb-3">
             <h3 className="font-black text-xs uppercase tracking-widest text-zinc-500">Scope Items</h3>

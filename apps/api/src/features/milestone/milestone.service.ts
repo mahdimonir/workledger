@@ -93,7 +93,7 @@ export class MilestoneService {
   }
 
   async clientSignoff(shareToken: string, milestoneId: string, dto: ClientSignoffDto) {
-    // 1. Verify project share token
+    
     const project = await this.prisma.project.findUnique({
       where: { shareToken },
     });
@@ -102,7 +102,7 @@ export class MilestoneService {
       throw new NotFoundException('Project share link is invalid or disabled.');
     }
 
-    // 2. Verify milestone belongs to project
+    
     const milestone = await this.prisma.milestone.findUnique({
       where: { id: milestoneId },
     });
@@ -111,7 +111,7 @@ export class MilestoneService {
       throw new NotFoundException('Milestone not found.');
     }
 
-    // 3. Update status within tenantContext transaction scope
+    
     return tenantContext.run(
       {
         workspaceId: project.workspaceId,
@@ -128,7 +128,7 @@ export class MilestoneService {
           updateData.approvedBy   = dto.clientName;
           updateData.approvedAt   = new Date();
           updateData.completedAt  = new Date();
-          updateData.revisionNote = null; // Clear revision note if approved
+          updateData.revisionNote = null; 
         } else {
           if (!dto.note) {
             throw new BadRequestException('Revision note comment is required to request revision.');

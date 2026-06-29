@@ -17,7 +17,7 @@ export default function ProjectShareTab() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
 
-  // Queries
+  
   const { data: projectRes, isLoading } = useQuery({
     queryKey: ['project', projectId],
     queryFn: () => apiClient.get(`/projects/${projectId}`).then((res) => res.data),
@@ -25,7 +25,7 @@ export default function ProjectShareTab() {
 
   const project = projectRes?.data;
 
-  // Mutations
+  
   const regenerateMutation = useMutation({
     mutationFn: () => apiClient.post(`/projects/${projectId}/share-token/regenerate`),
     onSuccess: () => {
@@ -75,7 +75,7 @@ export default function ProjectShareTab() {
         </div>
       )}
 
-      {/* Share settings */}
+      {}
       <div className="p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md shadow-sm flex flex-col gap-6">
         <div>
           <h3 className="font-black text-xs uppercase tracking-widest text-zinc-500 flex items-center gap-2">

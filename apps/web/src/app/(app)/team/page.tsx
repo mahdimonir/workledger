@@ -14,7 +14,7 @@ export default function TeamDirectoryPage() {
 
   const [error, setError] = useState('');
 
-  // Queries
+  
   const { data: membersRes, isLoading } = useQuery({
     queryKey: ['members'],
     queryFn: () => apiClient.get('/workspace/members').then((res) => res.data),
@@ -22,10 +22,9 @@ export default function TeamDirectoryPage() {
 
   const members = membersRes?.data || [];
 
-  // Mutations
-  const updateRoleMutation = useMutation({
-    pattern: 'change-role',
-    mutationFn: ({ memberId, role }: { memberId: string; role: string }) => 
+  
+  const updateRoleMutation = useMutation<any, any, { memberId: string; role: string }>({
+    mutationFn: ({ memberId, role }) => 
       apiClient.patch(`/workspace/members/${memberId}/role`, { role }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['members'] });
@@ -34,7 +33,7 @@ export default function TeamDirectoryPage() {
     onError: (err: any) => {
       setError(err.response?.data?.message || 'Failed to update member role.');
     }
-  } as any);
+  });
 
   const removeMemberMutation = useMutation({
     mutationFn: (memberId: string) => apiClient.delete(`/workspace/members/${memberId}`),

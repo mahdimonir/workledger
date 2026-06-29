@@ -32,7 +32,7 @@ export class PrismaService extends PrismaClient
               'Task', 'TaskComment', 'File', 'Comment', 'Workspace',
             ];
 
-            // 1. Tenant Isolation Injection
+            
             if (ctx?.workspaceId && TENANTED.includes(model)) {
               if (['findMany', 'findFirst', 'findUnique', 'count', 'aggregate', 'groupBy', 'update', 'updateMany', 'upsert', 'delete', 'deleteMany'].includes(operation)) {
                 _args.where = _args.where || {};
@@ -58,17 +58,17 @@ export class PrismaService extends PrismaClient
 
             const MODELS_WITH_DELETED_BY = ['Client', 'Project', 'Invoice', 'File'];
 
-            // 2. Soft Delete Filter
+            
             if (SOFT_DELETE_MODELS.includes(model)) {
               if (['findMany', 'findFirst', 'findUnique', 'count', 'aggregate'].includes(operation)) {
                 _args.where = _args.where || {};
-                // Only filter by deletedAt: null if not explicitly queried
+                
                 if (_args.where.deletedAt === undefined) {
                   _args.where.deletedAt = null;
                 }
               }
 
-              // Intercept DELETE operations -> convert to UPDATE soft deletes
+              
               if (operation === 'delete') {
                 const data: any = { deletedAt: new Date() };
                 if (MODELS_WITH_DELETED_BY.includes(model)) {
@@ -98,7 +98,7 @@ export class PrismaService extends PrismaClient
       },
     });
 
-    // Proxy properties to the extended client
+    
     return new Proxy(this, {
       get(target, prop, receiver) {
         if (prop === 'onModuleInit') return target.onModuleInit.bind(target);

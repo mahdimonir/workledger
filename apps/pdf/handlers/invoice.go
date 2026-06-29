@@ -49,19 +49,19 @@ func GenerateInvoicePDF(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}
 
-	// 1. Render HTML Template
+	
 	htmlStr, err := renderer.RenderTemplate("invoice.html", data)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Template rendering failed: %v", err)})
 	}
 
-	// 2. Generate PDF via Chromedp
+	
 	pdfBytes, err := renderer.HTMLToPDF(htmlStr)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("PDF generation failed: %v", err)})
 	}
 
-	// 3. Save PDF (uploads to R2 or saves locally)
+	
 	filename := fmt.Sprintf("invoice_%s.pdf", data.InvoiceId)
 	pdfUrl, sizeBytes, err := storage.SavePDF(filename, pdfBytes)
 	if err != nil {

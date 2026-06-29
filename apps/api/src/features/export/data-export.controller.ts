@@ -15,7 +15,7 @@ export class DataExportController {
   constructor(private readonly exportService: DataExportService) {}
 
   @Post()
-  @Roles(Role.OWNER) // GDPR compliance exports are restricted to Owners
+  @Roles(Role.OWNER) 
   @ApiOperation({ summary: 'Request a ZIP download containing all workspace data' })
   triggerExport(
     @CurrentUser('id') userId: string,

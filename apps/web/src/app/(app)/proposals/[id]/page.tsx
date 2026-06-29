@@ -24,7 +24,7 @@ export default function ProposalDetailsPage() {
   const proposalId = params.id as string;
   const [copied, setCopied] = useState(false);
 
-  // Queries
+  
   const { data: proposalRes, isLoading: loadingProposal } = useQuery({
     queryKey: ['proposal', proposalId],
     queryFn: () => apiClient.get(`/proposals/${proposalId}`).then((res) => res.data),
@@ -41,7 +41,7 @@ export default function ProposalDetailsPage() {
 
   const isLoading = loadingProposal || loadingClients;
 
-  // Mutations
+  
   const sendMutation = useMutation({
     mutationFn: () => apiClient.post(`/proposals/${proposalId}/send`),
     onSuccess: () => {
@@ -90,7 +90,7 @@ export default function ProposalDetailsPage() {
 
   return (
     <div className="flex flex-col gap-8 text-black text-left">
-      {/* Back and Title Header */}
+      {}
       <div className="flex flex-col gap-4">
         <Link 
           href="/proposals"
@@ -118,7 +118,7 @@ export default function ProposalDetailsPage() {
         </div>
       </div>
 
-      {/* Action panel */}
+      {}
       <div className="flex flex-wrap gap-3">
         {proposal.status === 'DRAFT' && (
           <button
@@ -150,10 +150,10 @@ export default function ProposalDetailsPage() {
         </Link>
       </div>
 
-      {/* Grid panels */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        {/* Pitch Content Card */}
+        {}
         <div className="md:col-span-2 p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md flex flex-col gap-6 shadow-sm">
           <h3 className="font-black text-xs uppercase tracking-widest border-b border-black/5 pb-3">Pitch Summary</h3>
           
@@ -165,7 +165,7 @@ export default function ProposalDetailsPage() {
             <span className="text-xs font-semibold text-zinc-400 uppercase italic">No introductory summary included.</span>
           )}
 
-          {/* Line items table */}
+          {}
           <div className="mt-4 border-t border-black/5 pt-6 flex flex-col gap-4">
             <h4 className="font-black text-xs uppercase tracking-widest text-zinc-400">Project Scope & Pricing</h4>
             <div className="overflow-x-auto">
@@ -196,7 +196,7 @@ export default function ProposalDetailsPage() {
           </div>
         </div>
 
-        {/* Totals Summary Panel */}
+        {}
         <div className="p-6 rounded-2xl border border-black/5 bg-[#f5f2ee] flex flex-col gap-6 shadow-sm justify-between">
           <div className="flex flex-col gap-4">
             <h3 className="font-black text-xs uppercase tracking-widest border-b border-black/5 pb-3">Financial Overview</h3>

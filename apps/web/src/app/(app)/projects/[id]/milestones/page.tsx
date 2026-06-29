@@ -22,7 +22,7 @@ export default function ProjectMilestonesTab() {
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
-  // Queries
+  
   const { data: milestonesRes, isLoading } = useQuery({
     queryKey: ['milestones', { projectId }],
     queryFn: () => apiClient.get(`/milestones?projectId=${projectId}`).then((res) => res.data),
@@ -30,7 +30,7 @@ export default function ProjectMilestonesTab() {
 
   const milestones = milestonesRes?.data || [];
 
-  // Mutations
+  
   const createMutation = useMutation({
     mutationFn: (newMilestone: any) => apiClient.post('/milestones', newMilestone),
     onSuccess: () => {
@@ -98,7 +98,7 @@ export default function ProjectMilestonesTab() {
 
   return (
     <div className="flex flex-col gap-6 text-black text-left">
-      {/* Header action */}
+      {}
       {isManagerOrOwner && (
         <div className="flex justify-end">
           <button
@@ -110,7 +110,7 @@ export default function ProjectMilestonesTab() {
         </div>
       )}
 
-      {/* Milestones list */}
+      {}
       <div className="flex flex-col gap-4">
         {milestones.length === 0 ? (
           <div className="border border-black/5 rounded-2xl bg-white/60 backdrop-blur-md p-16 flex flex-col items-center justify-center text-center shadow-sm">
@@ -182,7 +182,7 @@ export default function ProjectMilestonesTab() {
         )}
       </div>
 
-      {/* SlideOver for New Milestone */}
+      {}
       <SlideOver isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Create Milestone">
         {error && (
           <div className="mb-4 p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 font-semibold text-center">

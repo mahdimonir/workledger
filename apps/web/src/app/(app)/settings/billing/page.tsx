@@ -42,7 +42,7 @@ export default function BillingPage() {
         </p>
       </div>
 
-      {/* Plan status banner */}
+      {}
       <div className="p-5 rounded-2xl border border-black/5 bg-[#f5f2ee] flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="p-2.5 rounded-xl bg-black text-[#efeae3]">
@@ -60,7 +60,7 @@ export default function BillingPage() {
         </span>
       </div>
 
-      {/* Comparison Grid */}
+      {}
       <div className="mt-4 flex flex-col gap-4">
         <h3 className="font-black text-xs uppercase tracking-widest text-zinc-500 border-b border-black/5 pb-3">Available Plan Tiers</h3>
         

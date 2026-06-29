@@ -48,7 +48,7 @@ export default () => ({
   },
 });
 
-// Validate on startup — app refuses to start if anything is missing
+
 export const validationSchema = Joi.object({
   NODE_ENV:             Joi.string().valid('development','production','test').default('development'),
   PORT:                 Joi.number().default(3001),

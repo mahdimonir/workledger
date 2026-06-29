@@ -23,7 +23,7 @@ export class WorkspaceController {
   }
 
   @Patch('settings')
-  @Roles(Role.OWNER) // Only owners are authorized to change workspace settings/billing info
+  @Roles(Role.OWNER) 
   @ApiOperation({ summary: 'Update workspace and business profile settings' })
   updateSettings(
     @CurrentUser('workspaceId') workspaceId: string,

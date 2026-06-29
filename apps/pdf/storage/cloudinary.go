@@ -55,13 +55,13 @@ func UploadToCloudinary(filename string, data []byte) (string, error) {
 
 	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
 
-	// Create public ID by removing extension
+	
 	publicID := filename
 	if len(publicID) > 4 && publicID[len(publicID)-4:] == ".pdf" {
 		publicID = publicID[:len(publicID)-4]
 	}
 
-	// Prepare signature params
+	
 	sigParams := map[string]string{
 		"timestamp": timestamp,
 		"public_id": publicID,
@@ -72,11 +72,11 @@ func UploadToCloudinary(filename string, data []byte) (string, error) {
 
 	signature := getSignature(sigParams, apiSecret)
 
-	// Prepare request body
+	
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
-	// Add file field
+	
 	part, err := writer.CreateFormFile("file", filename)
 	if err != nil {
 		return "", fmt.Errorf("failed to create form file: %w", err)
@@ -85,7 +85,7 @@ func UploadToCloudinary(filename string, data []byte) (string, error) {
 		return "", fmt.Errorf("failed to copy file data: %w", err)
 	}
 
-	// Add fields
+	
 	_ = writer.WriteField("api_key", apiKey)
 	_ = writer.WriteField("timestamp", timestamp)
 	_ = writer.WriteField("public_id", publicID)
@@ -98,7 +98,7 @@ func UploadToCloudinary(filename string, data []byte) (string, error) {
 		return "", fmt.Errorf("failed to close multipart writer: %w", err)
 	}
 
-	// Make HTTP POST request to auto upload endpoint
+	
 	url := fmt.Sprintf("https://api.cloudinary.com/v1_1/%s/auto/upload", cloudName)
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {

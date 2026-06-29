@@ -12,13 +12,13 @@ function AuthCallbackContent() {
   useEffect(() => {
     const token = searchParams.get('token');
     if (token) {
-      // Save token in Zustand store and localStorage
+      
       setSession(token);
       
-      // Redirect to dashboard
+      
       router.replace('/dashboard');
     } else {
-      // Redirect back to login on failure
+      
       router.replace('/login');
     }
   }, [searchParams, setSession, router]);

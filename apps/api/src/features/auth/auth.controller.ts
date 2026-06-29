@@ -17,7 +17,7 @@ import { LoginDto } from './dto/login.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ResetPasswordRequestDto } from './dto/reset-password-request.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { LocalAuthGuard } from '../../shared/guards/local-auth.guard'; // we will create this simple file
+import { LocalAuthGuard } from '../../shared/guards/local-auth.guard'; 
 import { JwtAuthGuard, Public } from '../../shared/guards/jwt-auth.guard';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
@@ -69,7 +69,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email and password' })
   async login(
-    @Body() _dto: LoginDto, // for Swagger docs validation schema matching
+    @Body() _dto: LoginDto, 
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -111,7 +111,7 @@ export class AuthController {
 
       return { accessToken };
     } catch (err) {
-      // Clear cookie on failure
+      
       this.clearRefreshTokenCookie(res);
       throw err;
     }
@@ -147,7 +147,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Redirect to Google OAuth provider login' })
   async googleAuth(@Req() _req: Request) {
-    // Redirects automatically
+    
   }
 
   @Public()

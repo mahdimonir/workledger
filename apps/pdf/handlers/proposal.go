@@ -47,19 +47,19 @@ func GenerateProposalPDF(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}
 
-	// 1. Render HTML Template
+	
 	htmlStr, err := renderer.RenderTemplate("proposal.html", data)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Template rendering failed: %v", err)})
 	}
 
-	// 2. Generate PDF via Chromedp
+	
 	pdfBytes, err := renderer.HTMLToPDF(htmlStr)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("PDF generation failed: %v", err)})
 	}
 
-	// 3. Save PDF
+	
 	filename := fmt.Sprintf("proposal_%s.pdf", data.ProposalId)
 	pdfUrl, sizeBytes, err := storage.SavePDF(filename, pdfBytes)
 	if err != nil {

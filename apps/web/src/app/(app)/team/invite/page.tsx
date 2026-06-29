@@ -15,7 +15,7 @@ export default function InviteTeamMemberPage() {
   const [role, setRole] = useState('MEMBER');
   const [error, setError] = useState('');
 
-  // Mutations
+  
   const inviteMutation = useMutation({
     mutationFn: (newInvite: any) => apiClient.post('/workspace/members/invite', newInvite),
     onSuccess: () => {
@@ -40,7 +40,7 @@ export default function InviteTeamMemberPage() {
 
   return (
     <div className="flex flex-col gap-8 text-black text-left max-w-xl">
-      {/* Back and Title Header */}
+      {}
       <div className="flex flex-col gap-4">
         <Link 
           href="/team"

@@ -7,7 +7,7 @@ import { Save } from 'lucide-react';
 export default function NotificationsSettingsPage() {
   const { user } = useAuthStore();
   
-  // Toggles state
+  
   const [proposalAccepted, setProposalAccepted] = useState(true);
   const [proposalRejected, setProposalRejected] = useState(true);
   const [invoiceViewed, setInvoiceViewed] = useState(true);
@@ -23,7 +23,7 @@ export default function NotificationsSettingsPage() {
     setLoading(true);
     setSuccess(false);
 
-    // Mock update request delay
+    
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     setSuccess(true);

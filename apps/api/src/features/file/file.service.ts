@@ -18,7 +18,7 @@ export class FileService {
   ) {
     const { name, mimeType, projectId, milestoneId } = dto;
 
-    // Check project exists and belongs to the workspace
+    
     if (projectId) {
       const project = await this.prisma.project.findFirst({
         where: { id: projectId, workspaceId, deletedAt: null },
@@ -28,7 +28,7 @@ export class FileService {
       }
     }
 
-    // Check milestone exists
+    
     if (milestoneId) {
       const milestone = await this.prisma.milestone.findFirst({
         where: { id: milestoneId, workspaceId, deletedAt: null },
@@ -38,7 +38,7 @@ export class FileService {
       }
     }
 
-    // Find if there is an existing file with the same name to determine the version
+    
     const existingFile = await this.prisma.file.findFirst({
       where: {
         workspaceId,
@@ -46,13 +46,13 @@ export class FileService {
         milestoneId: milestoneId || null,
         name,
         deletedAt: null,
-        parentId: null, // latest version
+        parentId: null, 
       },
     });
 
     const nextVersion = existingFile ? existingFile.version + 1 : 1;
     
-    // Create unique key to avoid overwriting older versions in the storage bucket
+    
     const cleanName = name.replace(/\s+/g, '_');
     const folderPath = `workspaces/${workspaceId}/${projectId ? `projects/${projectId}` : 'shared'}`;
     const storageKey = `${folderPath}/${nextVersion}_${Date.now()}_${cleanName}`;
@@ -74,7 +74,7 @@ export class FileService {
     const { name, key, url, mimeType, sizeBytes, projectId, milestoneId, isDeliverable } = dto;
 
     return this.prisma.$transaction(async (tx) => {
-      // Find if there is an existing latest version file with the same name
+      
       const existingLatestFile = await tx.file.findFirst({
         where: {
           workspaceId,
@@ -82,13 +82,13 @@ export class FileService {
           milestoneId: milestoneId || null,
           name,
           deletedAt: null,
-          parentId: null, // latest version
+          parentId: null, 
         },
       });
 
       const nextVersion = existingLatestFile ? existingLatestFile.version + 1 : 1;
 
-      // 1. Create the new file version as the latest version (parentId = null)
+      
       const newFile = await tx.file.create({
         data: {
           workspaceId,
@@ -106,7 +106,7 @@ export class FileService {
         },
       });
 
-      // 2. Point the old version's parentId to the new version to build the history chain
+      
       if (existingLatestFile) {
         await tx.file.update({
           where: { id: existingLatestFile.id },
@@ -130,7 +130,7 @@ export class FileService {
       workspaceId,
       projectId,
       deletedAt: null,
-      parentId: null, // Only fetch the latest version of each file
+      parentId: null, 
     };
 
     if (search) {
@@ -170,7 +170,7 @@ export class FileService {
     workspaceId: string,
     fileId: string,
   ) {
-    // Find the requested file
+    
     const file = await this.prisma.file.findFirst({
       where: { id: fileId, workspaceId, deletedAt: null },
     });
@@ -179,8 +179,8 @@ export class FileService {
       throw new NotFoundException('File not found');
     }
 
-    // Traverse upstream or downstream depending on which file ID was queried
-    // To keep it simple and performant, we find all files in the same workspace/project with the same name
+    
+    
     const allVersions = await this.prisma.file.findMany({
       where: {
         workspaceId,
@@ -226,7 +226,7 @@ export class FileService {
       throw new NotFoundException('File not found');
     }
 
-    // Perform soft delete
+    
     const deletedFile = await this.prisma.file.update({
       where: { id: fileId },
       data: {
@@ -235,7 +235,7 @@ export class FileService {
       },
     });
 
-    // Clean up from the physical storage bucket asynchronously (optional, but good practice)
+    
     try {
       await this.storageService.deleteFile(file.key);
     } catch (err) {

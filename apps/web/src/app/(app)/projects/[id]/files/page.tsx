@@ -24,7 +24,7 @@ export default function ProjectFilesTab() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
-  // Queries
+  
   const { data: filesRes, isLoading } = useQuery({
     queryKey: ['files', { projectId }],
     queryFn: () => apiClient.get(`/files/project/${projectId}`).then((res) => res.data),
@@ -32,7 +32,7 @@ export default function ProjectFilesTab() {
 
   const files = filesRes?.data || [];
 
-  // Mutations
+  
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiClient.delete(`/files/${id}`),
     onSuccess: () => {
@@ -55,7 +55,7 @@ export default function ProjectFilesTab() {
     setError('');
 
     try {
-      // 1. Get pre-signed or local upload parameters
+      
       const uploadUrlRes = await apiClient.post('/files/upload-url', {
         name: file.name,
         mimeType: file.type || 'application/octet-stream',
@@ -64,16 +64,16 @@ export default function ProjectFilesTab() {
 
       const { uploadUrl, fileUrl, key, fields } = uploadUrlRes.data;
 
-      // 2. Perform direct upload
+      
       if (fields) {
-        // Multipart upload (like local adapter or Cloudinary)
+        
         const formData = new FormData();
         Object.entries(fields).forEach(([k, v]) => {
           formData.append(k, v as string);
         });
         formData.append('file', file);
 
-        // Upload using axios without authorization header to avoid CORS or endpoint auth conflicts if requested
+        
         const uploadResponse = await fetch(uploadUrl, {
           method: 'POST',
           body: formData,
@@ -83,7 +83,7 @@ export default function ProjectFilesTab() {
           throw new Error('Upload request failed.');
         }
       } else {
-        // Raw PUT upload (like S3/R2 direct pre-signed URL)
+        
         const uploadResponse = await fetch(uploadUrl, {
           method: 'PUT',
           body: file,
@@ -97,7 +97,7 @@ export default function ProjectFilesTab() {
         }
       }
 
-      // 3. Register file in database
+      
       await apiClient.post('/files/register', {
         name: file.name,
         key,
@@ -108,14 +108,14 @@ export default function ProjectFilesTab() {
         isDeliverable: false,
       });
 
-      // Refetch
+      
       queryClient.invalidateQueries({ queryKey: ['files', { projectId }] });
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'File upload failed.');
     } finally {
       setUploading(false);
-      // Clear file input
+      
       e.target.value = '';
     }
   };
@@ -155,7 +155,7 @@ export default function ProjectFilesTab() {
         </div>
       )}
 
-      {/* File Upload Action */}
+      {}
       <div className="flex justify-between items-center flex-wrap gap-4 border-b border-black/5 pb-4">
         <div>
           <h3 className="font-black text-xs uppercase tracking-widest text-zinc-500">Project Assets</h3>
@@ -174,7 +174,7 @@ export default function ProjectFilesTab() {
         </label>
       </div>
 
-      {/* Files directory list */}
+      {}
       <div className="flex flex-col gap-3">
         {files.length === 0 ? (
           <div className="border border-black/5 rounded-2xl bg-white/60 backdrop-blur-md p-16 flex flex-col items-center justify-center text-center shadow-sm">

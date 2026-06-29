@@ -17,7 +17,7 @@ export default function ProjectCommentsTab() {
   const [isInternal, setIsInternal] = useState(true);
   const [error, setError] = useState('');
 
-  // Queries
+  
   const { data: commentsRes, isLoading } = useQuery({
     queryKey: ['comments', { projectId }],
     queryFn: () => apiClient.get(`/comments/project/${projectId}`).then((res) => res.data),
@@ -25,7 +25,7 @@ export default function ProjectCommentsTab() {
 
   const comments = commentsRes?.data || [];
 
-  // Mutations
+  
   const createMutation = useMutation({
     mutationFn: (newComment: any) => apiClient.post(`/comments/project/${projectId}`, newComment),
     onSuccess: () => {
@@ -77,7 +77,7 @@ export default function ProjectCommentsTab() {
         </div>
       )}
 
-      {/* Comment Form */}
+      {}
       <form onSubmit={handleSubmit} className="p-5 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md shadow-sm flex flex-col gap-4">
         <h3 className="font-black text-xs uppercase tracking-widest text-zinc-500">Post Project Update</h3>
         
@@ -91,7 +91,7 @@ export default function ProjectCommentsTab() {
         />
 
         <div className="flex justify-between items-center flex-wrap gap-4">
-          {/* Internal toggle buttons */}
+          {}
           <div className="flex gap-2">
             <button
               type="button"
@@ -128,7 +128,7 @@ export default function ProjectCommentsTab() {
         </div>
       </form>
 
-      {/* Messages Feed */}
+      {}
       <div className="flex flex-col gap-4 mt-2">
         {comments.length === 0 ? (
           <div className="border border-black/5 rounded-2xl bg-white/60 backdrop-blur-md p-12 flex flex-col items-center justify-center text-center shadow-sm">
@@ -147,7 +147,7 @@ export default function ProjectCommentsTab() {
                     : 'border-emerald-150 border-l-4 border-l-emerald-600'
                 }`}
               >
-                {/* Header info */}
+                {}
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <div className="w-7 h-7 rounded-full bg-black flex items-center justify-center text-[#efeae3] text-[10px] font-black uppercase">
@@ -178,7 +178,7 @@ export default function ProjectCommentsTab() {
                   )}
                 </div>
 
-                {/* Message Body */}
+                {}
                 <p className="text-xs font-semibold text-zinc-750 leading-relaxed whitespace-pre-wrap">{comment.content}</p>
               </div>
             );

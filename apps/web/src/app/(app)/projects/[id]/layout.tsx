@@ -26,7 +26,7 @@ export default function ProjectLayout({
   const router = useRouter();
   const projectId = params.id as string;
 
-  // Query Project details
+  
   const { data: projectRes, isLoading: loadingProject } = useQuery({
     queryKey: ['project', projectId],
     queryFn: () => apiClient.get(`/projects/${projectId}`).then((res) => res.data),
@@ -77,7 +77,7 @@ export default function ProjectLayout({
 
   return (
     <div className="flex flex-col gap-8 text-black text-left">
-      {/* Back and Title Header */}
+      {}
       <div className="flex flex-col gap-4">
         <Link 
           href="/projects"
@@ -112,7 +112,7 @@ export default function ProjectLayout({
         </div>
       </div>
 
-      {/* Navigation tabs */}
+      {}
       <div className="flex border-b border-black/10 gap-6 overflow-x-auto scrollbar-none">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -137,7 +137,7 @@ export default function ProjectLayout({
         })}
       </div>
 
-      {/* Children pages */}
+      {}
       <div>{children}</div>
     </div>
   );

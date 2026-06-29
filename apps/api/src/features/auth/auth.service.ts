@@ -39,7 +39,7 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(dto.password, 12);
     
     return this.prisma.$transaction(async (tx) => {
-      // 1. Create Workspace
+      
       const slug = dto.workspaceName
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
@@ -61,7 +61,7 @@ export class AuthService {
 
       const emailVerifyToken = nanoid(32);
 
-      // 2. Create User
+      
       const user = await tx.user.create({
         data: {
           email: dto.email,
@@ -72,7 +72,7 @@ export class AuthService {
         },
       });
 
-      // 3. Create Member as OWNER
+      
       await tx.member.create({
         data: {
           workspaceId: workspace.id,
@@ -110,10 +110,10 @@ export class AuthService {
 
   async generateRefreshToken(userId: string, familyId?: string, ipAddress?: string, userAgent?: string): Promise<string> {
     const rawToken = nanoid(64);
-    // Hash refresh token using deterministic SHA-256 for fast unique DB queries
+    
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+    expiresAt.setDate(expiresAt.getDate() + 7); 
     
     await this.prisma.refreshToken.create({
       data: {
@@ -141,9 +141,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    // Refresh Token Reuse Detection
+    
     if (record.revokedAt) {
-      // Invalidate the entire token family immediately
+      
       await this.prisma.refreshToken.updateMany({
         where: { family: record.family },
         data: { revokedAt: new Date() },
@@ -155,7 +155,7 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token expired');
     }
 
-    // Revoke old token
+    
     await this.prisma.refreshToken.update({
       where: { id: record.id },
       data: {
@@ -164,7 +164,7 @@ export class AuthService {
       },
     });
 
-    // Generate new Access and Refresh tokens
+    
     const accessToken = await this.generateAccessToken(record.user);
     const newRawRefreshToken = await this.generateRefreshToken(
       record.userId,
@@ -213,7 +213,7 @@ export class AuthService {
       return user;
     }
 
-    // Create User, Workspace, OWNER Member, and OAuthAccount
+    
     return this.prisma.$transaction(async (tx) => {
       const workspaceName = `${profile.name}'s Workspace`;
       const slug = workspaceName
@@ -240,7 +240,7 @@ export class AuthService {
           email:         profile.email,
           name:          profile.name,
           avatarUrl:     profile.avatarUrl,
-          emailVerified: true, // OAuth verification
+          emailVerified: true, 
         },
       });
 
@@ -326,7 +326,7 @@ export class AuthService {
     });
     if (user) {
       const token = nanoid(32);
-      await this.redisService.set(`password_reset:${token}`, user.id, 3600); // 1 hour TTL
+      await this.redisService.set(`password_reset:${token}`, user.id, 3600); 
       console.log(`[SIMULATED PASSWORD RESET] Reset token: ${token}`);
     }
     return { message: 'If the email exists, a password reset link has been sent' };

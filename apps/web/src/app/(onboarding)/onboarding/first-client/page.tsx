@@ -14,7 +14,7 @@ export default function FirstClientStep() {
   const [error, setError] = useState('');
 
   const finishOnboarding = () => {
-    // Set cookie client-side so middleware knows onboarding is complete
+    
     document.cookie = 'wl_onboarding_complete=true; path=/; max-age=31536000; SameSite=Lax';
     router.replace('/dashboard');
   };
@@ -89,7 +89,7 @@ export default function FirstClientStep() {
           />
         </div>
 
-        {/* Navigation actions */}
+        {}
         <div className="flex items-center justify-between mt-6">
           <button
             type="button"

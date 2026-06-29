@@ -41,11 +41,11 @@ export class CloudinaryAdapter implements StorageService {
 
     const timestamp = Math.round(new Date().getTime() / 1000).toString();
 
-    // Estimate Cloudinary resource type
+    
     const isImage = mimeType.startsWith('image/');
     const resourceType = isImage ? 'image' : 'raw';
 
-    // Extract folder and publicId from the storage key
+    
     const lastSlashIndex = key.lastIndexOf('/');
     const folder = lastSlashIndex !== -1 ? key.substring(0, lastSlashIndex) : '';
     let publicId = lastSlashIndex !== -1 ? key.substring(lastSlashIndex + 1) : key;
@@ -64,7 +64,7 @@ export class CloudinaryAdapter implements StorageService {
       paramsToSign['upload_preset'] = uploadPreset;
     }
 
-    // Generate SHA-1 API request signature
+    
     const signature = cloudinary.utils.api_sign_request(paramsToSign, apiSecret);
 
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;

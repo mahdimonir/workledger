@@ -10,7 +10,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   onModuleInit() {
     this.client = new Redis(this.options.url, {
       lazyConnect: true,
-      maxRetriesPerRequest: null, // Critical requirement for BullMQ compatibility
+      maxRetriesPerRequest: null, 
     });
   }
 
@@ -22,7 +22,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return this.client;
   }
 
-  // Convenience wrappers
+  
   async get(key: string) {
     return this.client.get(key);
   }

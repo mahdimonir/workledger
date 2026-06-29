@@ -11,7 +11,7 @@ export class TaskService {
   constructor(private prisma: PrismaService) {}
 
   async createTask(dto: CreateTaskDto, userId: string) {
-    // If parentId is provided, verify parent task exists
+    
     if (dto.parentId) {
       const parent = await this.prisma.task.findUnique({
         where: { id: dto.parentId },
@@ -44,7 +44,7 @@ export class TaskService {
 
     const where: any = {
       projectId: query.projectId,
-      parentId:  null, // Only fetch parent tasks at top level
+      parentId:  null, 
     };
 
     if (query.status) {
@@ -114,7 +114,7 @@ export class TaskService {
       updateData.dueDate = new Date(dto.dueDate);
     }
 
-    // Set completedAt timestamp if moving to DONE status
+    
     if (dto.status === TaskStatus.DONE) {
       updateData.completedAt = new Date();
     } else if (dto.status) {
@@ -134,7 +134,7 @@ export class TaskService {
     });
   }
 
-  // ── TASK COMMENTS ──
+  
 
   async createTaskComment(taskId: string, dto: CreateTaskCommentDto, userId: string) {
     await this.getTaskById(taskId);

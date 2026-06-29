@@ -8,7 +8,7 @@ export class TenantInterceptor implements NestInterceptor {
     const req  = ctx.switchToHttp().getRequest();
     const user = req.user;
 
-    // Only set context if the user is authenticated
+    
     if (!user?.workspaceId) return next.handle();
 
     return new Observable(observer => {

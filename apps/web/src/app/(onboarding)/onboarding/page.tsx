@@ -41,7 +41,7 @@ export default function BusinessProfileStep() {
         timezone,
       });
 
-      // Update local session workspace name
+      
       if (accessToken && res.data?.data) {
         const user = useAuthStore.getState().user;
         const role = useAuthStore.getState().role;

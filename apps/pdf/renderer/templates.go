@@ -8,11 +8,11 @@ import (
 )
 
 func RenderTemplate(templateName string, data interface{}) (string, error) {
-	// Parse template
+	
 	templatePath := filepath.Join("templates", templateName)
 	tmpl, err := template.ParseFiles(templatePath)
 	if err != nil {
-		// Try fallback if running from parent folders
+		
 		templatePath = filepath.Join("apps", "pdf", "templates", templateName)
 		tmpl, err = template.ParseFiles(templatePath)
 		if err != nil {

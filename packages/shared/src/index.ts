@@ -1,4 +1,4 @@
-// Shared enums — used by both API and Web
+
 export enum Plan {
   FREE       = 'FREE',
   PRO        = 'PRO',
@@ -65,7 +65,7 @@ export enum TaskStatus {
   CANCELLED   = 'CANCELLED',
 }
 
-// Standard API response envelope
+
 export interface ApiResponse<T> {
   data: T;
   meta: {

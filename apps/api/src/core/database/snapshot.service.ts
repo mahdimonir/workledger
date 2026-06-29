@@ -14,7 +14,7 @@ export class SnapshotService {
   }) {
     const ctx = tenantContext.getStore();
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30); // 30 days retention
+    expiresAt.setDate(expiresAt.getDate() + 30); 
 
     return this.prisma.entitySnapshot.create({
       data: {
@@ -39,7 +39,7 @@ export class SnapshotService {
       },
     });
 
-    // Dynamically restore the correct model
+    
     const modelName = snap.entityType.toLowerCase();
     await (this.prisma as any)[modelName].update({
       where: { id: snap.entityId },
@@ -50,7 +50,7 @@ export class SnapshotService {
       },
     });
 
-    // Mark snapshot as consumed — cannot restore twice
+    
     return this.prisma.entitySnapshot.update({
       where: { id: snapshotId },
       data: {

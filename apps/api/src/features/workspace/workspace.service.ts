@@ -30,7 +30,7 @@ export class WorkspaceService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      // Perform workspace update
+      
       const updatedWorkspace = await tx.workspace.update({
         where: { id: workspaceId },
         data: {
@@ -49,7 +49,7 @@ export class WorkspaceService {
         },
       });
 
-      // Record in AuditLog
+      
       await tx.auditLog.create({
         data: {
           workspaceId,

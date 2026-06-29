@@ -7,5 +7,5 @@ export interface TenantStore {
   plan:        string;
 }
 
-// Single instance — lives for the lifetime of the process
+
 export const tenantContext = new AsyncLocalStorage<TenantStore>();

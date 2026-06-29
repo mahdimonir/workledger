@@ -52,7 +52,7 @@ export class InvoiceService {
 
   async createInvoice(dto: CreateInvoiceDto, userId: string) {
     return this.prisma.$transaction(async (tx) => {
-      // 1. Lock and update Workspace to safely generate sequential numbering
+      
       const workspaceId = tenantContext.getStore()?.workspaceId;
       if (!workspaceId) {
         throw new BadRequestException('Workspace context is required to create an invoice.');
@@ -69,11 +69,11 @@ export class InvoiceService {
       const prefix = workspace.invoicePrefix ?? 'INV';
       const invoiceNumber = `${prefix}-${String(currentNum).padStart(4, '0')}`;
 
-      // 2. Perform backend calculations to prevent tampering
+      
       const totals = this.calculateTotals(dto.lineItems, dto.discountValue ?? 0, dto.discountType);
       const viewToken = nanoid(21);
 
-      // 3. Create the invoice
+      
       const invoice = await tx.invoice.create({
         data: {
           clientId: dto.clientId,
@@ -98,7 +98,7 @@ export class InvoiceService {
         } as any,
       });
 
-      // 4. Link milestone if provided
+      
       if (dto.milestoneId) {
         await tx.milestone.update({
           where: { id: dto.milestoneId },
@@ -182,7 +182,7 @@ export class InvoiceService {
       updateData.dueDate = new Date(dto.dueDate);
     }
 
-    // Recalculate totals if lineItems or discount fields change
+    
     if (dto.lineItems || dto.discountValue !== undefined || dto.discountType !== undefined) {
       const lineItems = dto.lineItems ?? original.lineItems;
       const discountValue = dto.discountValue !== undefined ? dto.discountValue : Number(original.discountAmount);
@@ -220,7 +220,7 @@ export class InvoiceService {
       throw new NotFoundException(`Invoice with ID ${id} not found`);
     }
 
-    // Fetch Workspace settings
+    
     const workspace = await this.prisma.workspace.findUnique({
       where: { id: invoice.workspaceId },
     });
@@ -229,7 +229,7 @@ export class InvoiceService {
       throw new NotFoundException(`Workspace associated with invoice ${id} not found`);
     }
 
-    // Map data for Go microservice template structure
+    
     const serviceUrl = this.configService.get<string>('pdf.serviceUrl') ?? 'http://localhost:8080';
     const secret = this.configService.get<string>('pdf.serviceSecret') ?? 'local-dev-secret';
 
@@ -332,7 +332,7 @@ export class InvoiceService {
 
     const invoiceId = invoice.id;
 
-    // Client portal view logs/updates status from SENT to VIEWED
+    
     if (invoice.status === InvoiceStatus.SENT) {
       invoice = await tenantContext.run(
         {
@@ -375,7 +375,7 @@ export class InvoiceService {
         },
       );
     } else {
-      // Just increment viewedCount
+      
       invoice = await tenantContext.run(
         {
           workspaceId: invoice.workspaceId,
@@ -434,7 +434,7 @@ export class InvoiceService {
       const newAmountPaid = Math.round((amountPaid + dto.amount) * 100) / 100;
       const newAmountDue = Math.max(0, Math.round((total - newAmountPaid) * 100) / 100);
 
-      // Determine correct status
+      
       let status: InvoiceStatus = InvoiceStatus.PARTIALLY_PAID;
       let paidAt: Date | null = invoice.paidAt;
 
@@ -443,7 +443,7 @@ export class InvoiceService {
         paidAt = new Date(dto.paidAt);
       }
 
-      // Update Invoice
+      
       const updatedInvoice = await tx.invoice.update({
         where: { id },
         data: {
@@ -454,7 +454,7 @@ export class InvoiceService {
         },
       });
 
-      // Create Payment record
+      
       await tx.payment.create({
         data: {
           invoiceId: id,

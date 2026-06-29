@@ -23,7 +23,7 @@ import { MemberModule } from './features/member/member.module';
 
 @Module({
   imports: [
-    // Config — must be first
+    
     ConfigModule.forRoot({
       isGlobal:     true,
       load:         [appConfig],
@@ -31,18 +31,18 @@ import { MemberModule } from './features/member/member.module';
       envFilePath:  '.env',
     }),
 
-    // Rate limiting — 100 req/min per IP globally
+    
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
 
-    // Cron jobs
+    
     ScheduleModule.forRoot(),
 
-    // Core infrastructure
+    
     DatabaseModule,
     CacheModule,
     StorageModule,
 
-    // Feature modules
+    
     AuthModule,
     ClientModule,
     ProjectModule,

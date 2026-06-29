@@ -18,7 +18,7 @@ export class DataExportService {
       throw new NotFoundException('Workspace not found or inactive');
     }
 
-    // Execute the export asynchronously in the background
+    
     process.nextTick(() => {
       this.executeExport(userId, workspaceId).catch((err) => {
         console.error(
@@ -36,7 +36,7 @@ export class DataExportService {
   }
 
   private async executeExport(userId: string, workspaceId: string) {
-    // 1. Gather all workspace data
+    
     const [clients, projects, invoices, files] = await Promise.all([
       this.prisma.client.findMany({ where: { workspaceId, deletedAt: null } }),
       this.prisma.project.findMany({ where: { workspaceId, deletedAt: null } }),
@@ -46,7 +46,7 @@ export class DataExportService {
       }),
     ]);
 
-    // 2. Map data to CSVs
+    
     const clientHeaders = [
       'id',
       'name',
@@ -93,17 +93,17 @@ export class DataExportService {
     const projectCsv = this.toCsv(projects, projectHeaders);
     const invoiceCsv = this.toCsv(invoices, invoiceHeaders);
 
-    // 3. Package everything into a ZIP
+    
     const zip = new AdmZip();
     zip.addFile('clients.csv', Buffer.from(clientCsv, 'utf8'));
     zip.addFile('projects.csv', Buffer.from(projectCsv, 'utf8'));
     zip.addFile('invoices.csv', Buffer.from(invoiceCsv, 'utf8'));
 
-    // Download files asynchronously and add them to the zip archive
+    
     for (const file of files) {
       try {
         const downloadUrl = await this.storageService.getDownloadUrl(file.key);
-        // Using global fetch (available in Node 22/24)
+        
         const response = await fetch(downloadUrl);
         if (response.ok) {
           const arrayBuffer = await response.arrayBuffer();
@@ -126,14 +126,14 @@ export class DataExportService {
     const exportFilename = `gdpr_export_${workspaceId}_${Date.now()}.zip`;
     const exportKey = `exports/${workspaceId}/${exportFilename}`;
 
-    // 4. Save ZIP to storage provider
+    
     const secureUrl = await this.storageService.uploadFile(
       exportKey,
       zipBuffer,
       'application/zip',
     );
 
-    // 5. Send simulated email notification
+    
     console.log(
       `✉️ [GDPR Export] Email sent to user ${userId}: Your data export is ready. Download link: ${secureUrl}`,
     );
@@ -143,10 +143,10 @@ export class DataExportService {
 
   private toCsv(data: any[], headers: string[]): string {
     const csvRows: string[] = [];
-    // Header row
+    
     csvRows.push(headers.join(','));
 
-    // Data rows
+    
     for (const row of data) {
       const values = headers.map((header) => {
         const val = row[header];

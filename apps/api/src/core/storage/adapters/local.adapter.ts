@@ -18,17 +18,17 @@ export class LocalAdapter implements StorageService {
   }> {
     const apiUrl = this.configService.get<string>('apiUrl') || 'http://localhost:8000';
 
-    // Upload endpoint on this local API server
+    
     const uploadUrl = `${apiUrl.replace(/\/$/, '')}/api/v1/files/upload-local`;
 
-    // Static URL where NestJS serves static files from public/
+    
     const fileUrl = `${apiUrl.replace(/\/$/, '')}/public/uploads/${key}`;
 
     return {
       uploadUrl,
       fileUrl,
       fields: {
-        key, // The key will be sent in the multipart form field 'key'
+        key, 
       },
     };
   }
@@ -42,10 +42,10 @@ export class LocalAdapter implements StorageService {
     const filePath = path.join(__dirname, '..', '..', '..', '..', 'public', 'uploads', key);
     const directory = path.dirname(filePath);
     
-    // Synchronously create folders if they do not exist
+    
     fs.mkdirSync(directory, { recursive: true });
     
-    // Write buffer to local disk
+    
     fs.writeFileSync(filePath, buffer);
 
     const apiUrl = this.configService.get<string>('apiUrl') || 'http://localhost:8000';
@@ -53,7 +53,7 @@ export class LocalAdapter implements StorageService {
   }
 
   async deleteFile(key: string): Promise<void> {
-    // Resolve path relative to compiled dist directory: e.g. apps/api/public/uploads
+    
     const filePath = path.join(__dirname, '..', '..', '..', '..', 'public', 'uploads', key);
     try {
       if (fs.existsSync(filePath)) {

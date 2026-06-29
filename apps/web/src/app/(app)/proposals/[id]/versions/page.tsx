@@ -17,7 +17,7 @@ export default function ProposalVersionsPage() {
   const isManagerOrOwner = role === 'OWNER' || role === 'MANAGER';
   const [error, setError] = useState('');
 
-  // Queries
+  
   const { data: versionsRes, isLoading } = useQuery({
     queryKey: ['proposal-versions', proposalId],
     queryFn: () => apiClient.get(`/proposals/${proposalId}/versions`).then((res) => res.data),
@@ -25,7 +25,7 @@ export default function ProposalVersionsPage() {
 
   const versions = versionsRes?.data || [];
 
-  // Restore Mutation
+  
   const restoreMutation = useMutation({
     mutationFn: (versionNumber: number) => 
       apiClient.post(`/proposals/${proposalId}/versions/${versionNumber}/restore`),
@@ -57,7 +57,7 @@ export default function ProposalVersionsPage() {
 
   return (
     <div className="flex flex-col gap-6 text-black text-left max-w-3xl">
-      {/* Back and Title Header */}
+      {}
       <div className="flex flex-col gap-4">
         <Link 
           href={`/proposals/${proposalId}`}
@@ -79,7 +79,7 @@ export default function ProposalVersionsPage() {
         </div>
       )}
 
-      {/* Versions Timeline List */}
+      {}
       <div className="flex flex-col gap-4">
         {versions.length === 0 ? (
           <div className="border border-black/5 rounded-2xl bg-white/60 backdrop-blur-md p-12 flex flex-col items-center justify-center text-center shadow-sm">

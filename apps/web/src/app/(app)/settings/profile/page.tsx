@@ -24,10 +24,10 @@ export default function ProfileSettingsPage() {
     setLoading(true);
     setSuccess(false);
 
-    // Mock delay to simulate backend request
+    
     await new Promise((resolve) => setTimeout(resolve, 600));
 
-    // Update the local Zustand session cache
+    
     if (accessToken && user) {
       const activeWorkspace = useAuthStore.getState().workspace;
       const activeRole = useAuthStore.getState().role;

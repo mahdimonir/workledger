@@ -13,7 +13,7 @@ export class ProjectService {
     const shareToken = nanoid(21);
 
     return this.prisma.$transaction(async (tx) => {
-      // Create Project
+      
       const project = await tx.project.create({
         data: {
           ...dto,
@@ -22,7 +22,7 @@ export class ProjectService {
         } as any,
       });
 
-      // Log initial stage history
+      
       await tx.projectStageHistory.create({
         data: {
           projectId: project.id,
@@ -110,7 +110,7 @@ export class ProjectService {
           data:  dto as any,
         });
 
-        // Log transition in history
+        
         await tx.projectStageHistory.create({
           data: {
             projectId: id,
@@ -170,7 +170,7 @@ export class ProjectService {
       throw new NotFoundException('Project share link is invalid or disabled');
     }
 
-    // Expose only public-safe fields to client portal (no internal tasks, creator details)
+    
     return {
       id:          project.id,
       name:        project.name,

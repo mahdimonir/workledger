@@ -15,9 +15,9 @@ export default function DangerZoneSettingsPage() {
   const [confirmText, setConfirmText] = useState('');
   const [error, setError] = useState('');
 
-  // Delete Mutation
+  
   const deleteMutation = useMutation({
-    mutationFn: () => apiClient.delete(`/workspaces/${workspace?.id}`), // hypothetic workspace deletion
+    mutationFn: () => apiClient.delete(`/workspaces/${workspace?.id}`), 
     onSuccess: () => {
       clearSession();
       router.push('/');
@@ -38,8 +38,8 @@ export default function DangerZoneSettingsPage() {
       return;
     }
 
-    // Since workspace deletion is destructive and API might not fully support this mock,
-    // let's simulate the deletion in dev/mock.
+    
+    
     setError('');
     deleteMutation.mutate();
   };

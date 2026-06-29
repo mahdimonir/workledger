@@ -22,7 +22,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       ? exception.getResponse()
       : 'Internal server error';
 
-    // Log server errors (status >= 500)
+    
     if (status >= 500) {
       this.logger.error(
         `[${requestId}] ${request.method} ${request.url}`,

@@ -20,7 +20,7 @@ export class MemberService {
     const { email, role } = dto;
 
     return this.prisma.$transaction(async (tx) => {
-      // 1. Find or create user
+      
       let user = await tx.user.findUnique({
         where: { email },
       });
@@ -36,7 +36,7 @@ export class MemberService {
         });
       }
 
-      // 2. Check if already a member of workspace
+      
       const existingMember = await tx.member.findUnique({
         where: {
           workspaceId_userId: {
@@ -47,13 +47,13 @@ export class MemberService {
       });
 
       const inviteToken = nanoid(32);
-      const inviteExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
+      const inviteExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000); 
 
       if (existingMember) {
         if (existingMember.joinedAt) {
           throw new ConflictException('User is already a member of this workspace');
         }
-        // Update the pending invitation
+        
         await tx.member.update({
           where: { id: existingMember.id },
           data: {
@@ -64,7 +64,7 @@ export class MemberService {
           },
         });
       } else {
-        // Create new membership invitation
+        
         await tx.member.create({
           data: {
             workspaceId,
@@ -97,7 +97,7 @@ export class MemberService {
       throw new BadRequestException('Invalid or expired invitation token');
     }
 
-    // If new user with placeholder password hash
+    
     if (member.user.passwordHash === null) {
       if (!dto.name || !dto.password) {
         throw new BadRequestException('Name and password are required for registration');

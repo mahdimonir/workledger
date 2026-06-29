@@ -32,7 +32,7 @@ export default function ProjectTasksTab() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  // Form states - Create Task
+  
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('MEDIUM');
@@ -40,13 +40,13 @@ export default function ProjectTasksTab() {
   const [assigneeId, setAssigneeId] = useState('');
   const [error, setError] = useState('');
 
-  // Comment state
+  
   const [commentText, setCommentText] = useState('');
 
-  // Subtask state
+  
   const [subtaskTitle, setSubtaskTitle] = useState('');
 
-  // Queries
+  
   const { data: tasksRes, isLoading: loadingTasks } = useQuery({
     queryKey: ['tasks', { projectId }],
     queryFn: () => apiClient.get(`/tasks?projectId=${projectId}`).then((res) => res.data),
@@ -67,7 +67,7 @@ export default function ProjectTasksTab() {
   const members = membersRes?.data || [];
   const taskDetails = taskDetailsRes?.data || selectedTask;
 
-  // Mutations
+  
   const createTaskMutation = useMutation({
     mutationFn: (newTask: any) => apiClient.post('/tasks', newTask),
     onSuccess: () => {
@@ -179,7 +179,7 @@ export default function ProjectTasksTab() {
 
   return (
     <div className="flex flex-col gap-6 text-black text-left">
-      {/* Header action */}
+      {}
       <div className="flex justify-end">
         <button
           onClick={() => { resetForm(); setIsAddOpen(true); }}
@@ -189,7 +189,7 @@ export default function ProjectTasksTab() {
         </button>
       </div>
 
-      {/* Kanban Board */}
+      {}
       <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none items-start">
         {COLUMNS.map((column) => {
           const columnTasks = tasks.filter((t: any) => t.status === column.id && !t.parentId);
@@ -198,7 +198,7 @@ export default function ProjectTasksTab() {
               key={column.id} 
               className="flex-1 min-w-[300px] max-w-[350px] p-4 rounded-2xl border border-black/5 bg-[#f5f2ee]/80 flex flex-col gap-4 shadow-sm"
             >
-              {/* Column Header */}
+              {}
               <div className="flex justify-between items-center px-1">
                 <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase border ${column.color}`}>
                   {column.name}
@@ -208,7 +208,7 @@ export default function ProjectTasksTab() {
                 </span>
               </div>
 
-              {/* Column Cards */}
+              {}
               <div className="flex flex-col gap-3 min-h-[300px] overflow-y-auto max-h-[500px] pr-1">
                 {columnTasks.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center text-zinc-400 font-bold uppercase text-[9px] border border-dashed border-black/10 rounded-xl">
@@ -270,7 +270,7 @@ export default function ProjectTasksTab() {
         })}
       </div>
 
-      {/* SlideOver for New Task */}
+      {}
       <SlideOver isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Add Task">
         {error && (
           <div className="mb-4 p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 font-semibold text-center">
@@ -337,7 +337,7 @@ export default function ProjectTasksTab() {
         </form>
       </SlideOver>
 
-      {/* SlideOver for Task Details & Subtasks & Comments */}
+      {}
       <SlideOver 
         isOpen={isDetailOpen} 
         onClose={() => { setIsDetailOpen(false); setSelectedTask(null); }} 
@@ -380,7 +380,7 @@ export default function ProjectTasksTab() {
               </div>
             )}
 
-            {/* Subtasks Section */}
+            {}
             <div className="flex flex-col gap-3">
               <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Subtasks Checklist</span>
               <div className="flex flex-col gap-2">
@@ -413,11 +413,11 @@ export default function ProjectTasksTab() {
               </form>
             </div>
 
-            {/* Task Comments Section */}
+            {}
             <div className="flex flex-col gap-3 border-t border-black/5 pt-4">
               <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Team Comments (internal)</span>
               
-              {/* Comment Input */}
+              {}
               <form onSubmit={handleCommentSubmit} className="flex gap-2">
                 <input 
                   type="text" required value={commentText} onChange={(e) => setCommentText(e.target.value)}
@@ -432,7 +432,7 @@ export default function ProjectTasksTab() {
                 </button>
               </form>
 
-              {/* Comments list */}
+              {}
               <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                 {taskDetails.comments?.length === 0 ? (
                   <span className="text-[10px] text-zinc-400 font-bold uppercase py-2">No comments yet.</span>

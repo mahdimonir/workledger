@@ -17,17 +17,17 @@ import {
 import Link from 'next/link';
 import { apiClient } from '@/shared/api/client';
 import SlideOver from '@/shared/components/SlideOver';
-import { nanoid } from 'nanoid';
+import { generateId } from '@/shared/utils/id';
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
   
-  // SlideOver visibility states
+  
   const [isClientOpen, setIsClientOpen] = useState(false);
   const [isProjectOpen, setIsProjectOpen] = useState(false);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
-  // Form states - Client
+  
   const [clientName, setClientName] = useState('');
   const [clientCompany, setClientCompany] = useState('');
   const [clientEmail, setClientEmail] = useState('');
@@ -36,7 +36,7 @@ export default function DashboardPage() {
   const [clientNotes, setClientNotes] = useState('');
   const [clientError, setClientError] = useState('');
 
-  // Form states - Project
+  
   const [projectName, setProjectName] = useState('');
   const [projectClientId, setProjectClientId] = useState('');
   const [projectBudget, setProjectBudget] = useState('');
@@ -45,7 +45,7 @@ export default function DashboardPage() {
   const [projectStatus, setProjectStatus] = useState('KICKOFF');
   const [projectError, setProjectError] = useState('');
 
-  // Form states - Invoice
+  
   const [invoiceClientId, setInvoiceClientId] = useState('');
   const [invoiceProjectId, setInvoiceProjectId] = useState('');
   const [invoiceDueDate, setInvoiceDueDate] = useState('');
@@ -57,12 +57,12 @@ export default function DashboardPage() {
     { description: '', quantity: 1, rate: 0, taxRate: 0 }
   ]);
 
-  // Idempotency keys generated once per drawer mount
-  const clientIdempotency = useRef(nanoid());
-  const projectIdempotency = useRef(nanoid());
-  const invoiceIdempotency = useRef(nanoid());
+  
+  const clientIdempotency = useRef(generateId());
+  const projectIdempotency = useRef(generateId());
+  const invoiceIdempotency = useRef(generateId());
 
-  // Fetching data
+  
   const { data: clientsRes, isLoading: loadingClients } = useQuery({
     queryKey: ['clients'],
     queryFn: () => apiClient.get('/clients').then(res => res.data),
@@ -84,7 +84,7 @@ export default function DashboardPage() {
 
   const isLoading = loadingClients || loadingProjects || loadingInvoices;
 
-  // Mutations
+  
   const clientMutation = useMutation({
     mutationFn: (newClient: any) => apiClient.post('/clients', newClient, {
       headers: { 'Idempotency-Key': clientIdempotency.current }
@@ -127,7 +127,7 @@ export default function DashboardPage() {
     }
   });
 
-  // Resets
+  
   const resetClientForm = () => {
     setClientName('');
     setClientCompany('');
@@ -136,7 +136,7 @@ export default function DashboardPage() {
     setClientAddress('');
     setClientNotes('');
     setClientError('');
-    clientIdempotency.current = nanoid();
+    clientIdempotency.current = generateId();
   };
 
   const resetProjectForm = () => {
@@ -147,7 +147,7 @@ export default function DashboardPage() {
     setProjectPriority('MEDIUM');
     setProjectStatus('KICKOFF');
     setProjectError('');
-    projectIdempotency.current = nanoid();
+    projectIdempotency.current = generateId();
   };
 
   const resetInvoiceForm = () => {
@@ -159,10 +159,10 @@ export default function DashboardPage() {
     setInvoiceNotes('');
     setInvoiceLineItems([{ description: '', quantity: 1, rate: 0, taxRate: 0 }]);
     setInvoiceError('');
-    invoiceIdempotency.current = nanoid();
+    invoiceIdempotency.current = generateId();
   };
 
-  // Submits
+  
   const handleClientSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     clientMutation.mutate({
@@ -218,7 +218,7 @@ export default function DashboardPage() {
     });
   };
 
-  // Calculations for stats
+  
   const totalRevenue = invoices
     .filter((inv: any) => inv.status === 'PAID')
     .reduce((sum: number, inv: any) => sum + Number(inv.amount || 0), 0);
@@ -420,7 +420,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* SlideOver for New Client */}
+      {}
       <SlideOver isOpen={isClientOpen} onClose={() => setIsClientOpen(false)} title="Create Client">
         {clientError && (
           <div className="mb-4 p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 font-semibold text-center">
@@ -487,7 +487,7 @@ export default function DashboardPage() {
         </form>
       </SlideOver>
 
-      {/* SlideOver for New Project */}
+      {}
       <SlideOver isOpen={isProjectOpen} onClose={() => setIsProjectOpen(false)} title="Create Project">
         {projectError && (
           <div className="mb-4 p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 font-semibold text-center">
@@ -569,7 +569,7 @@ export default function DashboardPage() {
         </form>
       </SlideOver>
 
-      {/* SlideOver for New Invoice */}
+      {}
       <SlideOver isOpen={isInvoiceOpen} onClose={() => setIsInvoiceOpen(false)} title="Create Invoice">
         {invoiceError && (
           <div className="mb-4 p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 font-semibold text-center">

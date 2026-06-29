@@ -54,7 +54,7 @@ export class AdminService {
         },
       });
 
-      // Record in AuditLog
+      
       await tx.auditLog.create({
         data: {
           workspaceId,
@@ -97,13 +97,13 @@ export class AdminService {
       }),
     ]);
 
-    // MRR calculation
+    
     const mrr = activeWorkspaces.reduce(
       (sum, ws) => sum + (PLAN_PRICES[ws.plan] || 0),
       0,
     );
 
-    // Plan distribution
+    
     const planDistribution = {
       FREE: 0,
       PRO: 0,
@@ -116,7 +116,7 @@ export class AdminService {
       }
     });
 
-    // Signup growth rate (last 30 days vs preceding 30 days)
+    
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);

@@ -48,7 +48,7 @@ export default function InviteTeamStep() {
     setLoading(true);
     setError('');
 
-    // If there are invites, send invitations
+    
     if (invites.length > 0) {
       const updatedInvites = [...invites];
       for (let i = 0; i < updatedInvites.length; i++) {
@@ -69,7 +69,7 @@ export default function InviteTeamStep() {
       }
       setInvites(updatedInvites);
 
-      // If any failed, show error and let user inspect/retry
+      
       if (updatedInvites.some((inv) => inv.status === 'failed')) {
         setError('Some invitations failed to send. Please review.');
         setLoading(false);
@@ -100,7 +100,7 @@ export default function InviteTeamStep() {
         </div>
       )}
 
-      {/* Invite Form */}
+      {}
       <form onSubmit={addInvite} className="flex gap-3 items-end">
         <div className="flex-1 flex flex-col gap-1.5">
           <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Colleague Email</label>
@@ -134,7 +134,7 @@ export default function InviteTeamStep() {
         </button>
       </form>
 
-      {/* Invites list */}
+      {}
       <div className="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
         {invites.length === 0 ? (
           <div className="p-6 rounded-2xl border border-dashed border-black/10 text-center text-xs font-bold text-zinc-400 uppercase tracking-wider">
@@ -176,7 +176,7 @@ export default function InviteTeamStep() {
         )}
       </div>
 
-      {/* Navigation actions */}
+      {}
       <div className="flex items-center justify-between mt-6">
         <button
           type="button"

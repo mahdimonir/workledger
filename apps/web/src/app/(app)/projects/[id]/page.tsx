@@ -24,7 +24,7 @@ export default function ProjectOverviewTab() {
   const isManagerOrOwner = role === 'OWNER' || role === 'MANAGER';
   const [error, setError] = useState('');
 
-  // Queries
+  
   const { data: projectRes, isLoading: loadingProject } = useQuery({
     queryKey: ['project', projectId],
     queryFn: () => apiClient.get(`/projects/${projectId}`).then((res) => res.data),
@@ -38,7 +38,7 @@ export default function ProjectOverviewTab() {
   const project = projectRes?.data;
   const milestones = milestonesRes?.data || [];
 
-  // Update Stage Mutation
+  
   const updateStageMutation = useMutation({
     mutationFn: (newStatus: string) => apiClient.patch(`/projects/${projectId}`, { status: newStatus }),
     onSuccess: () => {
@@ -71,7 +71,7 @@ export default function ProjectOverviewTab() {
     updateStageMutation.mutate(stage);
   };
 
-  // Milestone Progress Calculation
+  
   const totalMilestones = milestones.length;
   const completedMilestones = milestones.filter((m: any) => m.status === 'APPROVED' || m.status === 'COMPLETE').length;
   const percentComplete = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
@@ -84,7 +84,7 @@ export default function ProjectOverviewTab() {
         </div>
       )}
 
-      {/* Horizontal Stage Stepper */}
+      {}
       <div className="p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md shadow-sm flex flex-col gap-4">
         <h3 className="font-black text-xs uppercase tracking-widest text-zinc-500">Project Stage Tracker</h3>
         
@@ -115,10 +115,10 @@ export default function ProjectOverviewTab() {
         </div>
       </div>
 
-      {/* Grid Content */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        {/* Project Details Card */}
+        {}
         <div className="md:col-span-2 p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md flex flex-col gap-6 shadow-sm">
           <h3 className="font-black text-xs uppercase tracking-widest border-b border-black/5 pb-3">Project Specifications</h3>
 
@@ -165,7 +165,7 @@ export default function ProjectOverviewTab() {
           </div>
         </div>
 
-        {/* Milestone Progress Card */}
+        {}
         <div className="p-6 rounded-2xl border border-black/5 bg-[#f5f2ee] flex flex-col gap-6 shadow-sm justify-between">
           <div className="flex flex-col gap-4">
             <h3 className="font-black text-xs uppercase tracking-widest border-b border-black/5 pb-3">Milestone Progress</h3>
@@ -196,7 +196,7 @@ export default function ProjectOverviewTab() {
 
       </div>
 
-      {/* Stage History */}
+      {}
       {project.stageHistory && project.stageHistory.length > 0 && (
         <div className="p-6 rounded-2xl border border-black/5 bg-white/60 backdrop-blur-md shadow-sm flex flex-col gap-4">
           <h3 className="font-black text-xs uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">

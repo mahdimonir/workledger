@@ -7,7 +7,7 @@ export class ResponseInterceptor implements NestInterceptor {
   intercept(_ctx: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map(result => {
-        // If the result contains paginated structure, split it between data and meta
+        
         if (result && typeof result === 'object' && 'data' in result && 'pagination' in result) {
           return {
             data: result.data,

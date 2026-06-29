@@ -14,7 +14,7 @@ import { Public } from '../../../shared/guards/jwt-auth.guard';
 
 @Controller('files')
 export class LocalUploadController {
-  @Public() // Allow clients to upload without auth for public/deliverable uploads
+  @Public() 
   @Post('upload-local')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -25,7 +25,7 @@ export class LocalUploadController {
             return cb(new BadRequestException('Missing key in upload request'), '');
           }
 
-          // Resolve path to apps/api/public/uploads
+          
           const baseUploadDir = path.join(
             __dirname,
             '..',
@@ -40,7 +40,7 @@ export class LocalUploadController {
             lastSlashIndex !== -1 ? key.substring(0, lastSlashIndex) : '';
           const destinationDir = path.join(baseUploadDir, relativeFolder);
 
-          // Synchronously create folder structure if not exists
+          
           fs.mkdirSync(destinationDir, { recursive: true });
           cb(null, destinationDir);
         },

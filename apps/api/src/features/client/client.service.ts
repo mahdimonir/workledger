@@ -68,7 +68,7 @@ export class ClientService {
   }
 
   async updateClient(id: string, dto: UpdateClientDto) {
-    // Ensure the client exists and belongs to the workspace (scoped via PrismaService where)
+    
     await this.getClientById(id);
 
     return this.prisma.client.update({
@@ -78,10 +78,10 @@ export class ClientService {
   }
 
   async deleteClient(id: string) {
-    // Ensure the client exists
+    
     await this.getClientById(id);
 
-    // Prisma extension will automatically translate this delete to an update soft-delete
+    
     return this.prisma.client.delete({
       where: { id },
     });

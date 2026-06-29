@@ -13,26 +13,26 @@ import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Serve static assets (for locally generated PDFs)
+  
   app.useStaticAssets(join(__dirname, '..', 'public'), { prefix: '/public' });
 
 
-  // Security headers
+  
   app.use(helmet());
 
-  // Parse cookies
+  
   app.use(cookieParser());
 
-  // Enable CORS
+  
   app.enableCors({
     origin:      process.env.FRONTEND_URL ?? 'http://localhost:3000',
     credentials: true,
   });
 
-  // Global Prefix
+  
   app.setGlobalPrefix('api/v1');
 
-  // Global Validation Pipe
+  
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -41,16 +41,16 @@ async function bootstrap() {
     })
   );
 
-  // Global Interceptors
+  
   app.useGlobalInterceptors(
     new TenantInterceptor(),
     new ResponseInterceptor()
   );
 
-  // Global Filter
+  
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  // Swagger Documentation Setup
+  
   const config = new DocumentBuilder()
     .setTitle('WorkLedger API')
     .setDescription('WorkLedger backend API')

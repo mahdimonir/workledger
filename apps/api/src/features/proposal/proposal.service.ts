@@ -38,12 +38,12 @@ export class ProposalService {
   }
 
   async createProposal(dto: CreateProposalDto, userId: string) {
-    // 1. Recalculate totals on backend to prevent client tampering
+    
     const totals = this.calculateTotals(dto.lineItems, dto.discountAmount ?? 0);
     const viewToken = nanoid(21);
 
     return this.prisma.$transaction(async (tx) => {
-      // 2. Create proposal
+      
       const proposal = await tx.proposal.create({
         data: {
           clientId:       dto.clientId,
@@ -63,7 +63,7 @@ export class ProposalService {
         } as any,
       });
 
-      // 3. Log initial version snapshot
+      
       await tx.proposalVersion.create({
         data: {
           proposalId: proposal.id,
@@ -149,7 +149,7 @@ export class ProposalService {
       updateData.validUntil = new Date(dto.validUntil);
     }
 
-    // Recalculate totals if items or discount is updated
+    
     if (dto.lineItems || dto.discountAmount !== undefined) {
       const lineItems = dto.lineItems ?? original.lineItems;
       const discountAmount = dto.discountAmount !== undefined ? dto.discountAmount : Number(original.discountAmount);
@@ -160,7 +160,7 @@ export class ProposalService {
       updateData.total = totals.total;
     }
 
-    // Check if we need to create a version snapshot
+    
     const statusChanged = dto.status && dto.status !== original.status;
     const shouldCreateVersion = dto.createVersion === true || statusChanged || original.status === ProposalStatus.DRAFT;
 
@@ -176,7 +176,7 @@ export class ProposalService {
           },
         });
 
-        // Write snapshot
+        
         await tx.proposalVersion.create({
           data: {
             proposalId: id,
@@ -222,7 +222,7 @@ export class ProposalService {
       throw new NotFoundException('Proposal not found or is in draft status.');
     }
 
-    // If status is SENT, update to VIEWED and capture timestamp
+    
     if (proposal.status === ProposalStatus.SENT) {
       await tenantContext.run(
         {
@@ -259,7 +259,7 @@ export class ProposalService {
       throw new BadRequestException('Proposal has already been accepted.');
     }
 
-    // Set correct tenant scope for unauthenticated client action
+    
     return tenantContext.run(
       {
         workspaceId: proposal.workspaceId,
@@ -269,7 +269,7 @@ export class ProposalService {
       },
       async () => {
         return this.prisma.$transaction(async (tx) => {
-          // 1. Update proposal status and acceptance data
+          
           const acceptedProposal = await tx.proposal.update({
             where: { id: proposal.id },
             data:  {
@@ -280,7 +280,7 @@ export class ProposalService {
             },
           });
 
-          // 2. Provision new project automatically from proposal
+          
           const shareToken = nanoid(21);
           const project = await tx.project.create({
             data: {
@@ -293,7 +293,7 @@ export class ProposalService {
             } as any,
           });
 
-          // 3. Log initial stage history for project
+          
           await tx.projectStageHistory.create({
             data: {
               projectId: project.id,
@@ -304,7 +304,7 @@ export class ProposalService {
             },
           });
 
-          // 4. Link proposal to the created project
+          
           return tx.proposal.update({
             where: { id: proposal.id },
             data:  {
@@ -350,7 +350,7 @@ export class ProposalService {
   }
 
   async getVersions(proposalId: string) {
-    // Verifies proposal workspace access first
+    
     await this.getProposalById(proposalId);
     return this.prisma.proposalVersion.findMany({
       where:   { proposalId },
@@ -382,7 +382,7 @@ export class ProposalService {
     return this.prisma.$transaction(async (tx) => {
       const nextVersion = original.version + 1;
 
-      // Update proposal with historical values and increment version
+      
       const restored = await tx.proposal.update({
         where: { id: proposalId },
         data:  {
@@ -399,7 +399,7 @@ export class ProposalService {
         },
       });
 
-      // Log a new version representing the restored snapshot state
+      
       await tx.proposalVersion.create({
         data: {
           proposalId,
