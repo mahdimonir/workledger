@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seed...');
+  console.log('🌱 Starting database seed with rich mock dataset...');
 
   
   await prisma.auditLog.deleteMany({});
@@ -35,6 +35,16 @@ async function main() {
   const passwordHash = await bcrypt.hash('password123', 12);
   
   
+  const adminUser = await prisma.user.create({
+    data: {
+      email:         'admin@workledger.io',
+      name:          'Master Admin',
+      passwordHash:  passwordHash,
+      emailVerified: true,
+      isSuperAdmin:  true,
+    },
+  });
+
   const mainUser = await prisma.user.create({
     data: {
       email:         'test@workledger.io',
@@ -53,9 +63,21 @@ async function main() {
     },
   });
 
-  console.log('👥 Created seed users: test@workledger.io & sarah@workledger.io');
+  console.log('👥 Created seed users: admin@workledger.io (SuperAdmin), test@workledger.io, and sarah@workledger.io');
 
   
+  const adminWorkspace = await prisma.workspace.create({
+    data: {
+      name:            'WorkLedger System Admin',
+      slug:            'system-admin',
+      brandColor:      '#EF4444',
+      invoicePrefix:   'WL-ADM',
+      defaultCurrency: 'USD',
+      businessName:    'WorkLedger Inc.',
+      businessEmail:   'admin@workledger.io',
+    },
+  });
+
   const workspace = await prisma.workspace.create({
     data: {
       name:            'Nova Studio',
@@ -71,25 +93,36 @@ async function main() {
     },
   });
 
-  console.log('🏢 Created workspace: Nova Studio');
+  console.log('🏢 Created workspaces: System Admin and Nova Studio');
 
   
-  const ownerMember = await prisma.member.create({
-    data: {
-      workspaceId: workspace.id,
-      userId:      mainUser.id,
-      role:        Role.OWNER,
-      joinedAt:    new Date(),
-    },
-  });
-
-  const colleagueMember = await prisma.member.create({
-    data: {
-      workspaceId: workspace.id,
-      userId:      colleague.id,
-      role:        Role.MEMBER,
-      joinedAt:    new Date(),
-    },
+  await prisma.member.createMany({
+    data: [
+      {
+        workspaceId: adminWorkspace.id,
+        userId:      adminUser.id,
+        role:        Role.OWNER,
+        joinedAt:    new Date(),
+      },
+      {
+        workspaceId: workspace.id,
+        userId:      mainUser.id,
+        role:        Role.OWNER,
+        joinedAt:    new Date(),
+      },
+      {
+        workspaceId: workspace.id,
+        userId:      colleague.id,
+        role:        Role.MEMBER,
+        joinedAt:    new Date(),
+      },
+      {
+        workspaceId: workspace.id,
+        userId:      adminUser.id,
+        role:        Role.VIEWER,
+        joinedAt:    new Date(),
+      },
+    ],
   });
 
   console.log('🔑 Created workspace memberships');
@@ -167,7 +200,25 @@ async function main() {
     },
   });
 
-  console.log('💼 Created 4 clients');
+  const clientWayne = await prisma.client.create({
+    data: {
+      workspaceId:  workspace.id,
+      name:         'Bruce Wayne',
+      company:      'Wayne Enterprises',
+      email:        'bruce@wayne.com',
+      phone:        '+1 (555) 909-0909',
+      timezone:     'America/New_York',
+      country:      'United States',
+      address:      'Wayne Tower, Gotham City, NJ',
+      currency:     'USD',
+      tags:         ['Enterprise', 'Defense'],
+      notes:        'Needs customized hardware integration. Very private.',
+      healthStatus: ClientHealth.ACTIVE,
+      totalRevenue: 350000.00,
+    },
+  });
+
+  console.log('💼 Created 5 clients');
 
   
   const projWeb = await prisma.project.create({
@@ -244,7 +295,26 @@ async function main() {
     },
   });
 
-  console.log('🚀 Created 4 projects');
+  const projWayne = await prisma.project.create({
+    data: {
+      workspaceId:    workspace.id,
+      clientId:       clientWayne.id,
+      name:           'Batcomputer UI Interface v2',
+      description:    'Upgrading cryptographic communication terminal layouts and visual metrics.',
+      status:         ProjectStatus.IN_PROGRESS,
+      currentStage:   'Beta testing layout',
+      startDate:      new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+      deadline:       new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+      estimatedValue: 120000.00,
+      priority:       Priority.URGENT,
+      shareToken:     'wayne-batcomputer-v2-xyz',
+      shareEnabled:   true,
+      createdBy:      mainUser.id,
+      tags:           ['Cryptographic', 'GUI', 'Dark-Mode'],
+    },
+  });
+
+  console.log('🚀 Created 5 projects');
 
   
   await prisma.projectStageHistory.createMany({
@@ -270,6 +340,13 @@ async function main() {
         note:      'Draft audit report submitted for final review.',
         changedBy: mainUser.name,
       },
+      {
+        projectId: projWayne.id,
+        fromStage: 'Development',
+        toStage:   'Beta testing layout',
+        note:      'Delivered first beta cryptographic build.',
+        changedBy: mainUser.name,
+      },
     ],
   });
 
@@ -292,6 +369,12 @@ async function main() {
         projectId:  projApp.id,
         memberId:   ownerMember.id,
         role:       'Lead Rust Engineer',
+        assignedBy: mainUser.id,
+      },
+      {
+        projectId:  projWayne.id,
+        memberId:   ownerMember.id,
+        role:       'Principal GUI Designer',
         assignedBy: mainUser.id,
       },
     ],
@@ -351,6 +434,37 @@ async function main() {
       dueDate:     new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
       status:      MilestoneStatus.IN_PROGRESS,
       order:       1,
+      createdBy:   mainUser.id,
+    },
+  });
+
+  const wayneM1 = await prisma.milestone.create({
+    data: {
+      workspaceId: workspace.id,
+      projectId:   projWayne.id,
+      name:        'Phase 1: Crypto Terminal Layout',
+      description: 'Design mockups and UI layout config.',
+      dueDate:     new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      status:      MilestoneStatus.APPROVED,
+      completedAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
+      approvedAt:  new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      approvedBy:  'Alfred Pennyworth',
+      order:       1,
+      createdBy:   mainUser.id,
+    },
+  });
+
+  const wayneM2 = await prisma.milestone.create({
+    data: {
+      workspaceId: workspace.id,
+      projectId:   projWayne.id,
+      name:        'Phase 2: Signal Telemetry Dashboard',
+      description: 'Display visual graphs for satellite frequencies.',
+      dueDate:     new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      status:      MilestoneStatus.REVISION_REQUESTED,
+      completedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+      revisionNote: 'Dark mode contrast is slightly low on high-res monitors.',
+      order:       2,
       createdBy:   mainUser.id,
     },
   });
@@ -439,6 +553,39 @@ async function main() {
       isInternal:  true,
       createdBy:   mainUser.id,
     },
+  });
+
+  
+  await prisma.task.createMany({
+    data: [
+      {
+        workspaceId: workspace.id,
+        projectId:   projWayne.id,
+        title:       'Audit satellite cryptographic keys',
+        description: 'Verify 2048-bit RSA encryption on frequencies channels.',
+        status:      TaskStatus.DONE,
+        priority:    Priority.URGENT,
+        assigneeId:  mainUser.id,
+        dueDate:     new Date(Date.now() - 40 * 24 * 60 * 60 * 1000),
+        completedAt: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000),
+        order:       1,
+        isInternal:  true,
+        createdBy:   mainUser.id,
+      },
+      {
+        workspaceId: workspace.id,
+        projectId:   projWayne.id,
+        title:       'Improve GUI panel contrast triggers',
+        description: 'Update visual borders matching Alfredo feedback.',
+        status:      TaskStatus.IN_PROGRESS,
+        priority:    Priority.HIGH,
+        assigneeId:  mainUser.id,
+        dueDate:     new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+        order:       2,
+        isInternal:  false,
+        createdBy:   mainUser.id,
+      },
+    ],
   });
 
   console.log('📝 Created tasks and subtasks');
@@ -531,6 +678,31 @@ async function main() {
     },
   });
 
+  const propWayne = await prisma.proposal.create({
+    data: {
+      workspaceId:          workspace.id,
+      clientId:             clientWayne.id,
+      title:                'Proposal for Batcomputer Interface Suite Upgrade',
+      introduction:         'We present a dark-themed visual upgrades proposal for the Batcomputer core layout visual interfaces.',
+      currency:             'USD',
+      subtotal:             120000.00,
+      taxTotal:             18000.00,
+      total:                138000.00,
+      status:               ProposalStatus.ACCEPTED,
+      viewToken:            'proposal-wayne-accepted-777',
+      sentAt:               new Date(Date.now() - 70 * 24 * 60 * 60 * 1000),
+      viewedAt:             new Date(Date.now() - 68 * 24 * 60 * 60 * 1000),
+      acceptedAt:           new Date(Date.now() - 65 * 24 * 60 * 60 * 1000),
+      acceptedBy:           'Alfred Pennyworth',
+      convertedToProjectId: projWayne.id,
+      createdBy:            mainUser.id,
+      lineItems:            [
+        { description: 'Encryption tunnels monitoring visually', quantity: 1, rate: 50000, taxRate: 15 },
+        { description: 'Satellite visual interface charts engine upgrade', quantity: 1, rate: 70000, taxRate: 15 },
+      ] as any,
+    },
+  });
+
   console.log('📄 Created proposals');
 
   
@@ -540,6 +712,12 @@ async function main() {
         proposalId: propAccepted.id,
         version:    1,
         snapshot:   { title: propAccepted.title, total: 97750 } as any,
+        savedBy:    mainUser.name,
+      },
+      {
+        proposalId: propWayne.id,
+        version:    1,
+        snapshot:   { title: propWayne.title, total: 138000 } as any,
         savedBy:    mainUser.name,
       },
     ],
@@ -645,7 +823,57 @@ async function main() {
     },
   });
 
-  console.log('💳 Created invoices');
+  const invWaynePaid = await prisma.invoice.create({
+    data: {
+      workspaceId:    workspace.id,
+      clientId:       clientWayne.id,
+      projectId:      projWayne.id,
+      milestoneId:    wayneM1.id,
+      invoiceNumber:  'INV-005',
+      status:         InvoiceStatus.PAID,
+      currency:       'USD',
+      subtotal:       50000.00,
+      taxTotal:       7500.00,
+      total:          57500.00,
+      amountPaid:     57500.00,
+      amountDue:      0.00,
+      dueDate:        new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
+      sentAt:         new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
+      viewedAt:       new Date(Date.now() - 34 * 24 * 60 * 60 * 1000),
+      viewedCount:    1,
+      paidAt:         new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      viewToken:      'invoice-wayne-paid-555',
+      createdBy:      mainUser.id,
+      lineItems:      [
+        { description: 'Completion of Crypto Terminal layout design and specs', quantity: 1, rate: 50000, taxRate: 15 },
+      ] as any,
+    },
+  });
+
+  const invWayneSent = await prisma.invoice.create({
+    data: {
+      workspaceId:    workspace.id,
+      clientId:       clientWayne.id,
+      projectId:      projWayne.id,
+      invoiceNumber:  'INV-006',
+      status:         InvoiceStatus.SENT,
+      currency:       'USD',
+      subtotal:       70000.00,
+      taxTotal:       10500.00,
+      total:          80500.00,
+      amountPaid:     0.00,
+      amountDue:      80500.00,
+      dueDate:        new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      sentAt:         new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      viewToken:      'invoice-wayne-sent-666',
+      createdBy:      mainUser.id,
+      lineItems:      [
+        { description: 'Core frequency Visual visual charts engine integration', quantity: 1, rate: 70000, taxRate: 15 },
+      ] as any,
+    },
+  });
+
+  console.log(' 💳 Created 6 invoices');
 
   
   await prisma.payment.createMany({
@@ -660,6 +888,17 @@ async function main() {
         note:        'Automatic online payment processed successfully.',
         paidAt:      new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
         recordedBy:  'Stripe integration',
+      },
+      {
+        workspaceId: workspace.id,
+        invoiceId:   invWaynePaid.id,
+        amount:      57500.00,
+        currency:    'USD',
+        method:      'Wire Transfer',
+        reference:   'tx_998188172901',
+        note:        'Batman billing desk transfer complete.',
+        paidAt:      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        recordedBy:  'Alfred Pennyworth',
       },
     ],
   });
@@ -805,6 +1044,26 @@ async function main() {
         isRead:      true,
         readAt:      new Date(),
       },
+      {
+        workspaceId: workspace.id,
+        userId:      mainUser.id,
+        type:        NotificationType.NEW_COMMENT,
+        title:       'New client feedback comment',
+        body:        'Acme Review Contact added a feedback comment on Acme Website Redesign.',
+        entityType:  'Comment',
+        link:        `/projects/${projWeb.id}/comments`,
+        isRead:      false,
+      },
+      {
+        workspaceId: workspace.id,
+        userId:      mainUser.id,
+        type:        NotificationType.MILESTONE_REVISION,
+        title:       'Milestone revision requested',
+        body:        'Bruce Wayne requested revisions for Phase 2: Signal Telemetry Dashboard.',
+        entityType:  'Milestone',
+        link:        `/projects/${projWayne.id}/milestones`,
+        isRead:      false,
+      },
     ],
   });
 
@@ -828,6 +1087,17 @@ async function main() {
         entityType:  'Invoice',
         entityId:    invSent.id,
         description: 'Created invoice NS-INV-003 linked to Stark Dashboard App.',
+        ipAddress:   '127.0.0.1',
+        userAgent:   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
+      },
+      {
+        workspaceId: workspace.id,
+        userId:      mainUser.id,
+        userEmail:   mainUser.email,
+        action:      'PROJECT_STAGE_CHANGED',
+        entityType:  'Project',
+        entityId:    projWayne.id,
+        description: 'Moved Batcomputer UI Interface v2 to Beta testing stage.',
         ipAddress:   '127.0.0.1',
         userAgent:   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
       },
