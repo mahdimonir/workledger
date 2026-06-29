@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
 import { apiClient } from '@/shared/api/client';
 import { toast } from '@/shared/store/toast.store';
+import Link from 'next/link';
+import React, { useState } from 'react';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="mahdi@workledger.io"
+                placeholder="test@workledger.io"
                 className="h-12 px-4 rounded-xl bg-white/60 border border-black/10 text-black placeholder-zinc-400 focus:outline-none focus:border-black text-sm transition-colors"
               />
             </div>

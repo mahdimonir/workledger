@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
 import { apiClient } from '@/shared/api/client';
 import { toast } from '@/shared/store/toast.store';
+import { Eye, EyeOff } from 'lucide-react';
+import Link from 'next/link';
+import React, { useState } from 'react';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -76,7 +76,7 @@ export default function SignupPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Mahdi Hasan"
+                placeholder="John Doe"
                 className="h-12 px-4 rounded-xl bg-white/60 border border-black/10 text-black placeholder-zinc-400 focus:outline-none focus:border-black text-sm transition-colors"
               />
             </div>
@@ -100,7 +100,7 @@ export default function SignupPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="mahdi@workledger.io"
+                placeholder="test@workledger.io"
                 className="h-12 px-4 rounded-xl bg-white/60 border border-black/10 text-black placeholder-zinc-400 focus:outline-none focus:border-black text-sm transition-colors"
               />
             </div>

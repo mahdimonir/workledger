@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { 
-  FolderKanban, 
-  CheckCircle2, 
-  Clock, 
-  MessageSquare,
-  FileText
+import {
+    CheckCircle2,
+    Clock,
+    FileText,
+    FolderKanban,
+    MessageSquare
 } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function ClientPortalPage() {
   const params = useParams();
@@ -94,7 +94,7 @@ export default function ClientPortalPage() {
             <div className="flex flex-col gap-4">
               <div className="p-4 rounded-lg bg-white/[0.02] border border-white/5">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-bold text-white">Mahdi Hasan (Owner)</span>
+                  <span className="text-xs font-bold text-white">John Doe (Owner)</span>
                   <span className="text-[10px] text-zinc-500">2 hours ago</span>
                 </div>
                 <p className="text-sm text-zinc-300">

@@ -1,10 +1,9 @@
 'use client';
 
-import React from 'react';
 
 export default function AdminUsersPage() {
   const users = [
-    { id: '1', name: 'Moniruzzaman Mahdi', email: 'mahdi@workledger.io', plan: 'FREE', joined: '2026-06-22', status: 'ACTIVE' },
+    { id: '1', name: 'John Doe', email: 'john@workledger.io', plan: 'FREE', joined: '2026-06-22', status: 'ACTIVE' },
     { id: '2', name: 'Test User', email: 'testuser_1001@workledger.io', plan: 'PRO', joined: '2026-06-23', status: 'ACTIVE' }
   ];
 
