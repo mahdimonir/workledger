@@ -16,6 +16,8 @@ interface Workspace {
   name: string;
   slug: string;
   plan: string;
+  businessName?: string | null;
+  address?: string | null;
 }
 
 interface AuthState {
