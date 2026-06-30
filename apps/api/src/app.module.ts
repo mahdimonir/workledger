@@ -20,6 +20,7 @@ import { NotificationPreferenceModule } from './features/notification/notificati
 import { DataExportModule } from './features/export/data-export.module';
 import { AdminModule } from './features/admin/admin.module';
 import { MemberModule } from './features/member/member.module';
+import { PlanModule } from './features/plan/plan.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { MemberModule } from './features/member/member.module';
     DataExportModule,
     AdminModule,
     MemberModule,
+    PlanModule,
   ],
 })
 export class AppModule {}

@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Starting database seed with rich mock dataset...');
 
-  
+  await prisma.planDetail.deleteMany({});
   await prisma.auditLog.deleteMany({});
   await prisma.notification.deleteMany({});
   await prisma.comment.deleteMany({});
@@ -94,6 +94,63 @@ async function main() {
   });
 
   console.log('Created workspaces: System Admin and Nova Studio');
+
+  await prisma.planDetail.createMany({
+    data: [
+      {
+        key: 'FREE',
+        name: 'Free Starter',
+        price: '$0',
+        numericPrice: 0,
+        frequency: 'forever',
+        desc: 'Ideal for solo operators establishing unified workspaces.',
+        features: [
+          '1 Workspace',
+          'Up to 3 active clients',
+          'Standard sequential invoicing',
+          'Direct portal share links',
+          'Zipped GDPR data export'
+        ],
+        popular: false
+      },
+      {
+        key: 'PRO',
+        name: 'Professional',
+        price: '$29',
+        numericPrice: 29,
+        frequency: 'per month',
+        desc: 'Perfect for collaborative teams needing role-based permissions.',
+        features: [
+          '1 Workspace',
+          'Unlimited clients & projects',
+          'Custom invoice sequence numbering',
+          'Priority proposals versioning',
+          'Advanced operations metrics',
+          'File versioning history logs'
+        ],
+        popular: true
+      },
+      {
+        key: 'ENTERPRISE',
+        name: 'Enterprise',
+        price: '$299',
+        numericPrice: 299,
+        frequency: 'per month',
+        desc: 'For large-scale consulting, agency teams and enterprise operations.',
+        features: [
+          'Unlimited Workspaces',
+          'Multi-tenant team invite controls',
+          'Custom SMTP email domain sending',
+          'White-labeled client portal domains',
+          'Dedicated staging environments',
+          'SLA uptime commitments',
+          'Custom integrations & API access'
+        ],
+        popular: false
+      }
+    ]
+  });
+  console.log('Seeded platform plan details.');
 
   
   const adminOwnerMember = await prisma.member.create({

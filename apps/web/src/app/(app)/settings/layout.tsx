@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { User, Building, Receipt, Bell, ShieldAlert } from 'lucide-react';
+import { User, Building, Receipt, Bell, ShieldAlert, Mail } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SettingsLayout({
@@ -17,6 +17,7 @@ export default function SettingsLayout({
     { name: 'Workspace & Brand', href: '/settings/workspace', icon: Building },
     { name: 'Billing & Plan', href: '/settings/billing', icon: Receipt },
     { name: 'Notification Rules', href: '/settings/notifications', icon: Bell },
+    { name: 'Email Templates', href: '/settings/email-templates', icon: Mail },
     { name: 'Danger Zone', href: '/settings/danger', icon: ShieldAlert, danger: true },
   ];
 
