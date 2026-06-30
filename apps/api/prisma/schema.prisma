@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ── identity enums
 enum Plan {
   FREE
   PRO
@@ -22,7 +21,6 @@ enum Role {
   VIEWER
 }
 
-// ── USERS ──
 model User {
   id               String    @id @default(cuid())
   email            String    @unique
@@ -47,7 +45,6 @@ model User {
   @@index([email])
 }
 
-// ── WORKSPACES ──
 model Workspace {
   id              String    @id @default(cuid())
   name            String
@@ -83,7 +80,6 @@ model Workspace {
   @@index([plan])
 }
 
-// ── MEMBERS ──
 model Member {
   id           String    @id @default(cuid())
   workspaceId  String
@@ -104,7 +100,6 @@ model Member {
   @@index([inviteToken])
 }
 
-// ── REFRESH TOKENS ──
 model RefreshToken {
   id         String    @id @default(cuid())
   userId     String
@@ -124,7 +119,6 @@ model RefreshToken {
   @@index([family])
 }
 
-// ── OAUTH ACCOUNTS ──
 model OAuthAccount {
   id          String   @id @default(cuid())
   userId      String
@@ -139,7 +133,6 @@ model OAuthAccount {
   @@index([userId])
 }
 
-// ── CLIENTS ──
 enum ClientHealth {
   ACTIVE
   AT_RISK
@@ -176,7 +169,6 @@ model Client {
   @@index([workspaceId, deletedAt])
 }
 
-// ── PROJECTS ──
 enum ProjectStatus {
   LEAD
   KICKOFF
@@ -277,7 +269,6 @@ model ProjectTemplate {
   @@index([workspaceId])
 }
 
-// ── PROPOSALS ──
 enum ProposalStatus {
   DRAFT
   SENT
@@ -336,7 +327,6 @@ model ProposalVersion {
   @@unique([proposalId, version])
 }
 
-// ── MILESTONES ──
 enum MilestoneStatus {
   PENDING
   IN_PROGRESS
@@ -371,7 +361,6 @@ model Milestone {
   @@index([workspaceId])
 }
 
-// ── TASKS ──
 enum TaskStatus {
   TODO
   IN_PROGRESS
@@ -424,7 +413,6 @@ model TaskComment {
   @@index([taskId])
 }
 
-// ── INVOICES ──
 enum InvoiceStatus {
   DRAFT
   SENT
@@ -489,7 +477,6 @@ model Invoice {
   @@index([clientId])
 }
 
-// ── PAYMENTS ──
 model Payment {
   id          String   @id @default(cuid())
   workspaceId String
@@ -509,7 +496,6 @@ model Payment {
   @@index([workspaceId])
 }
 
-// ── EXPENSES ──
 model Expense {
   id          String    @id @default(cuid())
   workspaceId String
@@ -533,7 +519,6 @@ model Expense {
   @@index([projectId])
 }
 
-// ── FILES ──
 model File {
   id            String    @id @default(cuid())
   workspaceId   String
@@ -562,7 +547,6 @@ model File {
   @@index([workspaceId])
 }
 
-// ── COMMENTS ──
 model Comment {
   id          String    @id @default(cuid())
   workspaceId String
@@ -587,7 +571,6 @@ model Comment {
   @@index([workspaceId])
 }
 
-// ── NOTIFICATIONS ──
 enum NotificationType {
   INVOICE_SENT
   INVOICE_VIEWED
@@ -623,7 +606,6 @@ model Notification {
   @@index([workspaceId])
 }
 
-// ── AUDIT LOGS ──
 enum AuditAction {
   USER_LOGIN
   USER_LOGOUT
@@ -681,7 +663,6 @@ model AuditLog {
   @@index([action])
 }
 
-// ── ENTITY SNAPSHOTS (undo / redo) ──
 model EntitySnapshot {
   id           String    @id @default(cuid())
   workspaceId  String
@@ -701,7 +682,6 @@ model EntitySnapshot {
   @@index([expiresAt])
 }
 
-// ── FEATURE FLAGS ──
 model FeatureFlag {
   key          String   @id
   description  String
@@ -728,7 +708,6 @@ model WorkspaceFeatureFlag {
   @@index([workspaceId])
 }
 
-// ── IDEMPOTENCY RECORDS ──
 model IdempotencyRecord {
   key         String   @id
   workspaceId String
@@ -740,3 +719,18 @@ model IdempotencyRecord {
 
   @@index([expiresAt])
 }
+
+model PlanDetail {
+  id           String   @id @default(cuid())
+  key          Plan     @unique
+  name         String
+  price        String
+  numericPrice Float
+  frequency    String
+  desc         String
+  features     String[]
+  popular      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+

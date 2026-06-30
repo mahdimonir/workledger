@@ -204,7 +204,7 @@ apps/web/
 │       ├── proposal.schema.ts
 │       └── auth.schema.ts
 │
-└── middleware.ts                      ← Route protection + redirects
+└── proxy.ts            next.js 16 renamed middleware into proxy          ← Route protection + redirects
 ```
 
 ---
@@ -222,7 +222,7 @@ apps/web/
 | `(marketing)` | None | None |
 | `portal/` | Share token in URL | 404 if token invalid |
 
-### Middleware (`middleware.ts`)
+### Middleware (`proxy.ts`)
 
 > **Critical:** Next.js route groups like `(app)` are **invisible** in URLs. The real path is `/dashboard`, NOT `/(app)/dashboard`.
 
@@ -233,7 +233,7 @@ const APP_PATHS = ['/dashboard', '/clients', '/projects', '/invoices',
   '/proposals', '/team', '/settings', '/reports', '/expenses', '/notifications'];
 const AUTH_PATHS = ['/login', '/signup', '/forgot-password', '/reset-password', '/verify-email'];
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const hasSession = req.cookies.has('refreshToken');
 
@@ -1086,7 +1086,7 @@ useEffect(() => {
 - [x] Zustand auth store (localStorage persistence)
 - [x] Axios client (withCredentials + 401 interceptor)
 - [ ] `(auth)` shell: login, signup, forgot-password, reset-password, verify-email, accept-invite, Google callback
-- [ ] `middleware.ts` — route protection
+- [ ] `proxy.ts` — route protection
 - [ ] `(app)/layout.tsx` auth guard (token + `/auth/me` rehydration)
 
 ### Phase 2 — Core Product
