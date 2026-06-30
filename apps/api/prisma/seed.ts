@@ -1,10 +1,10 @@
-import { PrismaClient, Role, ClientHealth, ProjectStatus, Priority, ProposalStatus, MilestoneStatus, TaskStatus, InvoiceStatus, NotificationType } from '@prisma/client';
+import { ClientHealth, InvoiceStatus, MilestoneStatus, NotificationType, Priority, PrismaClient, ProjectStatus, ProposalStatus, Role, TaskStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seed with rich mock dataset...');
+  console.log('Starting database seed with rich mock dataset...');
 
   
   await prisma.auditLog.deleteMany({});
@@ -29,7 +29,7 @@ async function main() {
   await prisma.user.deleteMany({});
   await prisma.workspace.deleteMany({});
 
-  console.log('🧹 Cleaned existing database tables.');
+  console.log('Cleaned existing database tables.');
 
   
   const passwordHash = await bcrypt.hash('password123', 12);
@@ -63,7 +63,7 @@ async function main() {
     },
   });
 
-  console.log('👥 Created seed users: admin@workledger.io (SuperAdmin), test@workledger.io, and sarah@workledger.io');
+  console.log('Created seed users: admin@workledger.io (SuperAdmin), test@workledger.io, and sarah@workledger.io');
 
   
   const adminWorkspace = await prisma.workspace.create({
@@ -93,36 +93,43 @@ async function main() {
     },
   });
 
-  console.log('🏢 Created workspaces: System Admin and Nova Studio');
+  console.log('Created workspaces: System Admin and Nova Studio');
 
   
-  await prisma.member.createMany({
-    data: [
-      {
-        workspaceId: adminWorkspace.id,
-        userId:      adminUser.id,
-        role:        Role.OWNER,
-        joinedAt:    new Date(),
-      },
-      {
-        workspaceId: workspace.id,
-        userId:      mainUser.id,
-        role:        Role.OWNER,
-        joinedAt:    new Date(),
-      },
-      {
-        workspaceId: workspace.id,
-        userId:      colleague.id,
-        role:        Role.MEMBER,
-        joinedAt:    new Date(),
-      },
-      {
-        workspaceId: workspace.id,
-        userId:      adminUser.id,
-        role:        Role.VIEWER,
-        joinedAt:    new Date(),
-      },
-    ],
+  const adminOwnerMember = await prisma.member.create({
+    data: {
+      workspaceId: adminWorkspace.id,
+      userId:      adminUser.id,
+      role:        Role.OWNER,
+      joinedAt:    new Date(),
+    },
+  });
+
+  const ownerMember = await prisma.member.create({
+    data: {
+      workspaceId: workspace.id,
+      userId:      mainUser.id,
+      role:        Role.OWNER,
+      joinedAt:    new Date(),
+    },
+  });
+
+  const colleagueMember = await prisma.member.create({
+    data: {
+      workspaceId: workspace.id,
+      userId:      colleague.id,
+      role:        Role.MEMBER,
+      joinedAt:    new Date(),
+    },
+  });
+
+  const adminMember = await prisma.member.create({
+    data: {
+      workspaceId: workspace.id,
+      userId:      adminUser.id,
+      role:        Role.VIEWER,
+      joinedAt:    new Date(),
+    },
   });
 
   console.log('🔑 Created workspace memberships');
@@ -218,7 +225,7 @@ async function main() {
     },
   });
 
-  console.log('💼 Created 5 clients');
+  console.log('Created 5 clients');
 
   
   const projWeb = await prisma.project.create({
@@ -380,7 +387,7 @@ async function main() {
     ],
   });
 
-  console.log('🔗 Assigned members and logged stage history');
+  console.log('Assigned members and logged stage history');
 
   
   const m1 = await prisma.milestone.create({
@@ -469,7 +476,7 @@ async function main() {
     },
   });
 
-  console.log('🏳️ Created milestones');
+  console.log('Created milestones');
 
   
   const task1 = await prisma.task.create({
@@ -588,7 +595,7 @@ async function main() {
     ],
   });
 
-  console.log('📝 Created tasks and subtasks');
+  console.log('Created tasks and subtasks');
 
   
   await prisma.taskComment.createMany({
@@ -703,7 +710,7 @@ async function main() {
     },
   });
 
-  console.log('📄 Created proposals');
+  console.log('Created proposals');
 
   
   await prisma.proposalVersion.createMany({
@@ -873,7 +880,7 @@ async function main() {
     },
   });
 
-  console.log(' 💳 Created 6 invoices');
+  console.log('Created 6 invoices');
 
   
   await prisma.payment.createMany({
@@ -1075,9 +1082,11 @@ async function main() {
         userId:      mainUser.id,
         userEmail:   mainUser.email,
         action:      'USER_LOGIN',
-        description: 'User test@workledger.io logged in successfully from Chrome.',
+        entityType:  'User',
+        entityId:    mainUser.id,
+        entityLabel: mainUser.name,
         ipAddress:   '127.0.0.1',
-        userAgent:   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
+        meta:        { description: 'User test@workledger.io logged in successfully from Chrome.', userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0' } as any,
       },
       {
         workspaceId: workspace.id,
@@ -1086,9 +1095,9 @@ async function main() {
         action:      'CREATED',
         entityType:  'Invoice',
         entityId:    invSent.id,
-        description: 'Created invoice NS-INV-003 linked to Stark Dashboard App.',
+        entityLabel: invSent.invoiceNumber,
         ipAddress:   '127.0.0.1',
-        userAgent:   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
+        meta:        { description: 'Created invoice NS-INV-003 linked to Stark Dashboard App.', userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0' } as any,
       },
       {
         workspaceId: workspace.id,
@@ -1097,21 +1106,21 @@ async function main() {
         action:      'PROJECT_STAGE_CHANGED',
         entityType:  'Project',
         entityId:    projWayne.id,
-        description: 'Moved Batcomputer UI Interface v2 to Beta testing stage.',
+        entityLabel: projWayne.name,
         ipAddress:   '127.0.0.1',
-        userAgent:   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
+        meta:        { description: 'Moved Batcomputer UI Interface v2 to Beta testing stage.', userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0' } as any,
       },
     ],
   });
 
-  console.log('🔔 Created notifications and audit logs');
+  console.log('Created notifications and audit logs');
 
-  console.log('🎉 Seed database successfully populated with large realistic testing data!');
+  console.log('Seed database successfully populated with large realistic testing data!');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error during seed script:', e);
+    console.error('Error during seed script:', e);
     process.exit(1);
   })
   .finally(async () => {
