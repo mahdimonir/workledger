@@ -4,10 +4,22 @@ import React from 'react';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { ShieldCheck, Check } from 'lucide-react';
 import { PLANS } from '@/shared/config/plans';
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/shared/api/client';
 
 export default function BillingPage() {
   const { workspace } = useAuthStore();
   const currentPlan = workspace?.plan || 'FREE';
+
+  const { data: plansRes } = useQuery({
+    queryKey: ['plans'],
+    queryFn: () => apiClient.get('/plans').then((res) => res.data).catch(() => null),
+  });
+
+  const plans = (plansRes || PLANS).map((p: any) => ({
+    ...p,
+    id: p.key || p.id
+  }));
 
   return (
     <div className="flex flex-col gap-6 text-left">
@@ -41,7 +53,7 @@ export default function BillingPage() {
         <h3 className="font-black text-xs uppercase tracking-widest text-zinc-500 border-b border-black/5 pb-3">Available Plan Tiers</h3>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
-          {PLANS.map((plan) => {
+          {plans.map((plan: any) => {
             const isActive = plan.id === currentPlan;
             return (
               <div 
@@ -70,7 +82,7 @@ export default function BillingPage() {
                   </div>
 
                   <ul className="flex flex-col gap-2 border-t border-black/5 pt-4">
-                    {plan.features.map((feature, idx) => (
+                    {plan.features.map((feature: string, idx: number) => (
                       <li key={idx} className="flex items-start gap-2 text-xs font-semibold text-zinc-650 leading-normal">
                         <Check className="w-3.5 h-3.5 text-black flex-shrink-0 mt-0.5" />
                         <span>{feature}</span>

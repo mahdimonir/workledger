@@ -43,29 +43,17 @@ export const PLANS: PlanDetail[] = [
     popular: true
   },
   {
-    id: 'AGENCY',
-    name: 'Agency Pro',
-    price: '$79',
-    numericPrice: 79,
-    frequency: 'per month',
-    desc: 'Perfect for growing agencies with complex multi-workspace needs.',
-    features: [
-      'Unlimited Workspaces',
-      'Multi-tenant team invite controls',
-      'Custom SMTP email domain sending',
-      'White-labeled client portal domains',
-      'Dedicated support channels'
-    ]
-  },
-  {
     id: 'ENTERPRISE',
     name: 'Enterprise',
     price: '$299',
     numericPrice: 299,
     frequency: 'per month',
-    desc: 'For large-scale consulting and operation teams.',
+    desc: 'For large-scale consulting, agency teams and enterprise operations.',
     features: [
-      'Everything in Agency Pro',
+      'Unlimited Workspaces',
+      'Multi-tenant team invite controls',
+      'Custom SMTP email domain sending',
+      'White-labeled client portal domains',
       'Dedicated staging environments',
       'SLA uptime commitments',
       'Custom integrations & API access'

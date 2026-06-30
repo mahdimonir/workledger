@@ -8,8 +8,19 @@ import Lenis from 'lenis';
 import { Check, ArrowRight } from 'lucide-react';
 import Header from '../_components/Header';
 import { PLANS } from '@/shared/config/plans';
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/shared/api/client';
 
 export default function PricingPage() {
+  const { data: plansRes } = useQuery({
+    queryKey: ['plans'],
+    queryFn: () => apiClient.get('/plans').then((res) => res.data).catch(() => null),
+  });
+
+  const plans = (plansRes || PLANS).map((p: any) => ({
+    ...p,
+    id: p.key || p.id
+  }));
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
@@ -86,8 +97,8 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="pricing-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-auto mb-24">
-          {PLANS.map((plan) => (
+        <div className="pricing-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto mb-24">
+          {plans.map((plan: any) => (
             <div
               key={plan.id}
               className={`plan-card relative flex flex-col p-6 rounded-3xl justify-between bg-white/60 backdrop-blur-md shadow-sm border ${
@@ -123,7 +134,7 @@ export default function PricingPage() {
               </Link>
 
               <ul className="flex flex-col gap-3 text-left">
-                {plan.features.map((f, idx) => (
+                {plan.features.map((f: string, idx: number) => (
                   <li key={idx} className="flex items-start gap-3 text-xs text-zinc-600 leading-normal">
                     <Check className="w-3.5 h-3.5 text-black flex-shrink-0 mt-0.5" />
                     <span>{f}</span>
