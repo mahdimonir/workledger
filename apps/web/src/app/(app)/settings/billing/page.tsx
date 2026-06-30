@@ -3,31 +3,7 @@
 import React from 'react';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { ShieldCheck, Check } from 'lucide-react';
-
-const PLANS = [
-  {
-    id: 'FREE',
-    name: 'Free Starter',
-    price: '$0',
-    frequency: 'forever',
-    features: ['1 Workspace', 'Up to 3 active clients', 'Standard sequential invoicing', 'Direct portal share links'],
-  },
-  {
-    id: 'PRO',
-    name: 'Professional',
-    price: '$29',
-    frequency: 'per month',
-    features: ['1 Workspace', 'Unlimited clients & projects', 'Custom invoice sequence numbering', 'Priority proposals versioning', 'Advanced operations metrics'],
-    popular: true,
-  },
-  {
-    id: 'AGENCY',
-    name: 'Agency Pro',
-    price: '$79',
-    frequency: 'per month',
-    features: ['Unlimited Workspaces', 'Multi-tenant team invite controls', 'Custom SMTP email domain sending', 'White-labeled client portal domains', 'Dedicated support channels'],
-  },
-];
+import { PLANS } from '@/shared/config/plans';
 
 export default function BillingPage() {
   const { workspace } = useAuthStore();
